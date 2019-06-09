@@ -81,7 +81,7 @@ At the time of writing, the ESP32 has only recently become generally available, 
 
 A module called the ESP-WROOM-32 is available from Espressif that contains an ESP32 plus accompanying supporting hardware such as 4MBytes flash memory. Don't mistake this for a breadboard friendly device … this is much more oriented to those with good electronics skills that wish to embed an ESP32 in a specific project. The module is only 18mm x 25.5mm and has pin spacings at the 1.27mm pitch.  This is an extremely small spacing.
 
-  ![](.\img\overview_001.jpg)
+  ![](img/overview_001.jpg)
 
 The fantastic web site called PIGHIXXX provides the most top quality pin-out images I have ever seen. Please visit their site. They have pin-outs for almost every conceivable device I have ever wanted to know about.
 
@@ -90,7 +90,7 @@ Here is a schematic of the current device:
 
 
 
-![img](.\img\overview_002.jpg)
+![img](img/overview_002.jpg)
 
  
 
@@ -108,13 +108,13 @@ See also:
 
 С выпуском ESP32, Espressif выпустили свой собственный модуль для представления ESP32 большему количеству потребителей. Изготовленная ими доска называется ESP32-DevKit и считается дружественной к макету.
 
-![img](.\img\overview_003.jpg)
+![img](img/overview_003.jpg)
 
 Плата содержит заголовки для ESP32, а также адаптер микро-USB и две кнопки, называемые включением и загрузкой. Эти кнопки можно использовать для «прошивки» или «загрузки» нового кода приложения в модуль. Чтобы выполнить эту задачу, нажмите и удерживайте кнопку «EN», одновременно нажимая и отпуская «Boot».
 
 Вывод модуля показан на следующем рисунке:
 
-  ![img](.\img\clip_image007.png)
+  ![img](img/clip_image007.png)
 
 
 
@@ -140,11 +140,11 @@ The pins are broken out both on the front and rear.
 
 This module is not at all bread-board friendly but that should be inherently understood from its purpose.
 
-  ![img](.\img\overview_004.png)
+  ![img](img/overview_004.png)
 
 Here is the schematic of the USB interface:
 
-![img](.\img\overview_005.gif)
+![img](img/overview_005.gif)
 
 The LED anode pins are connected to IO0, IO2 and IO4.
 
@@ -203,12 +203,12 @@ There is an RGB led attached to GPIO 0, GPIO 2 and GPIO 4 (Blue)
 The module can be powered from an external 2.5m power source (5V) or from USB. There is a jumper which **must** be in place to select which is enabled.
 
 
-![img](.\img\overview_006.gif)
+![img](img/overview_006.gif)
 
 In addition, you should also enable the UARTs with two jumpers here:
 
 
-![img](.\img\overview_007.png)
+![img](img/overview_007.png)
 
  There have been a number of releases of the WROVER board. Unfortunately, determining which board you have is not the easiest task because the identity isn't on the board. The following are good indications:
 
@@ -248,7 +248,7 @@ See also:
 
 SparkFun make an ESP32 board called the "ESP32 Thing".
 
-![img](.\img\overview_008.png)  ![img](.\img\overview_009.jpg)
+![img](img/overview_008.png)  ![img](img/overview_009.jpg)
 
 
 
@@ -256,7 +256,7 @@ One of the distinguishing features of this board is the built in battery charger
 
  
 
-![img](.\img\overview_010.gif)
+![img](img/overview_010.gif)
 
  
 
@@ -278,7 +278,7 @@ ESP32 - это устройство Wi-Fi, и, следовательно, мы 
 
 if it is configured to receive at 115200.
 
-  ![img](.\img\connect_001.jpg)
+  ![img](img/connect_001.jpg)
 
 When connected to a Windows 10 machine via micro USB, it shows up as a serial device:
 
@@ -404,7 +404,7 @@ while(1) {
 
  Когда мы запустим это и проверим вывод на логическом анализаторе, все будет по желанию::
 
-  ![img](.\img\gpio_01.jpg)
+  ![img](img/gpio_01.jpg)
 
 В качестве альтернативы настройке всех атрибутов отдельных выводов мы можем установить атрибуты одного или нескольких выводов с помощью одного вызова с помощью функции gpio_config (). Он принимает структуру с именем gpio_config_t в качестве входных данных и устанавливает направление, подтягивание, опускание и прерывание настроек всех выводов, представленных в битовой маске. Например::
 
@@ -473,15 +473,15 @@ gpio_intr_enable().
 - Disable – не вызывать прерывание при изменении сигнала.
 - PosEdge – вызов обработчика прерывания при изменении с низкого уровня на высокий.
 
-![img](.\img\gpio_02.gif)  
+![img](img/gpio_02.gif)  
 
 - NegEdge – Вызвать обработчик прерывания при изменении от высокого к низкому.
 
-  ![img](.\img\gpio_03.gif)
+  ![img](img/gpio_03.gif)
 
 -  AnyEdge – Вызвать обработчик прерывания либо при изменении с низкого на высокий, либо при изменении с высокого на низкий.
 
-![img](.\img\gpio_04.gif)
+![img](img/gpio_04.gif)
 
 -  Hi – Вызовите обработчик прерывания, пока сигнал высокий.
 
@@ -558,7 +558,7 @@ PCF8574
 
 Вот схема контактов для устройства:
 
- ![img](.\img\gpio_05.jpg)
+ ![img](img/gpio_05.jpg)
 
  Here is a description of the pins:
 
@@ -638,11 +638,11 @@ void loop() {
 
   The corresponding circuit is:
 
-  ![img](.\img\gpio_06.jpg)
+  ![img](img/gpio_06.jpg)
 
 And on a breadboard:
 
-![img](.\img\gpio_07.jpg)  
+![img](img/gpio_07.jpg)  
 
 See also:
 
@@ -783,7 +783,7 @@ The register addresses are:
 
 
 
-![img](.\img\gpio_08.gif)
+![img](img/gpio_08.gif)
 
 See also:
 
@@ -842,7 +842,7 @@ See also:
 
 SPI - это протокол шины, который позволит ESP32 взаимодействовать с периферийными устройствами или интегральными схемами, которые соответствуют протоколу SPI. По логике это выглядит следующим образом:
 
-![img](.\img\spi1.gif)
+![img](img/spi1.gif)
 
  
 
@@ -858,7 +858,7 @@ SPI - это протокол шины, который позволит ESP32 в
 
 Если бы было только одно устройство, с которым общался мастер, этих трех линий было бы достаточно ... однако это не большая часть шины. Если у нас есть несколько устройств, очевидная проблема заключается в том, как один раб узнает, что с ним разговаривают, а не с каким-то потенциально отличным рабом? Ответ заключается в том, что у каждого ведомого устройства есть уникальная строка ввода, называемая «Выбор ведомого» (SS). Обычно у ведомого выбора есть одно значение (например, высокое), и только когда ведущий управляет ведомым выбором с другим значением (например, низкое), это ведомое устройство знает, что к нему обращаются. Правила гласят, что подчиненное устройство должно отвечать (получать или передавать) только на шине, когда его линия выбора подчиненного устройства указывает, что это необходимо сделать.
 
-  ![img](.\img\spi2.gif)
+  ![img](img/spi2.gif)
 
 Пока устройство активно, потому что оно выбрано мастером, оно может одновременно считывать данные из линии MOSI, одновременно записывая данные в мастер через линию MISO. Сосредоточив внимание на единственном взаимодействии хозяин / раб, история выглядит так:
 
@@ -916,7 +916,7 @@ SPI объединяет эти два флага в четыре определ
 
 Конечно, у шины есть тактовая частота, которая одинакова для всех устройств? В ESP32 у нас больше гибкости, чем когда-либо прежде. ESP32 может связываться с различными устройствами, используя разные скорости шины в зависимости от выбранного в данный момент устройства. Например, если мы говорим с устройством «A», мы можем использовать тактовую частоту 100 кГц, однако, если мы говорим с устройством «B», мы можем использовать другую тактовую частоту. Поскольку только одно устройство одновременно является активным из-за выбора ведомого устройства, другие устройства могут игнорировать тактовую частоту (и другие линии данных), и, следовательно, скорость тактового генератора не учитывается для устройства, которое не выбрано.
 
-  ![img](.\img\spi3.gif)
+  ![img](img/spi3.gif)
 
 Чтобы использовать драйвер SPI, мы начинаем с вызова spi_bus_initialize (). Здесь мы идентифицируем контакты на ESP32, которые должны использоваться для функций SPI, таких как CLK, MISO и MOSI.
 
@@ -987,7 +987,7 @@ void test_spi_task(void *ignore) {
 
 If we then examine the result in the output of a logic analyzer we find:
 
-  ![img](.\img\spi4.gif)
+  ![img](img/spi4.gif)
 
 See also:
 
@@ -1016,7 +1016,7 @@ See also:
 Следующая диаграмма иллюстрирует номера выводов по умолчанию для SPI для VSPI и HSPI ... но, пожалуйста, помните, что это только значения по умолчанию и могут быть переназначены при необходимости.
 
 
-![img](.\img\spi5.gif)
+![img](img/spi5.gif)
 
 Получив экземпляр SPI, мы вызываем spiAttachMOSI (), spiAttachMISO (), spiAttachCLK () и spiAttachSS (), чтобы установить соответствующие сопоставления выводов. Для передачи значения пина -1 используется значение по умолчанию, в противном случае используется предоставленный явный номер пина.
 
