@@ -122,14 +122,6 @@ Abstract
 
    -  Cleaned up description of Bleichenbacher/Klima attack defenses.
 
-
-
-
-Dierks & Rescorla           Standards Track                     [Page 5]
-
-RFC 5246                          TLS                        August 2008
-
-
    -  Alerts MUST now be sent in many cases.
 
    -  After a certificate_request, if no certificates are available,
@@ -204,87 +196,88 @@ RFC 5246                          TLS                        August 2008
 
 # 4.  Presentation Language
 
-   This document deals with the formatting of data in an external
-   representation.  The following very basic and somewhat casually
-   defined presentation syntax will be used.  The syntax draws from
-   several sources in its structure.  Although it resembles the
-   programming language "C" in its syntax and XDR [XDR] in both its
-   syntax and intent, it would be risky to draw too many parallels.  The
-   purpose of this presentation language is to document TLS only; it has
-   no general application beyond that particular goal.
-
+   В этом документе рассматривается форматирование данных во внешнем 
+   представлении. Будет использован следующий очень простой и несколько 
+   случайно определенный синтаксис представления. Синтаксис основан на 
+   нескольких источниках в своей структуре. Хотя он напоминает язык 
+   программирования «C» по синтаксису и XDR [XDR] как по синтаксису, 
+   так и по назначению, было бы рискованно проводить слишком много 
+   параллелей. Целью этого языка представления является только 
+   документирование TLS; у него нет общего применения, кроме этой 
+   конкретной цели.
+   
 ## 4.1.  Basic Block Size
 
-   The representation of all data items is explicitly specified.  The
-   basic data block size is one byte (i.e., 8 bits).  Multiple byte data
-   items are concatenations of bytes, from left to right, from top to
-   bottom.  From the byte stream, a multi-byte item (a numeric in the
-   example) is formed (using C notation) by:
-
+   Явно указано представление всех элементов данных. Базовый размер 
+   блока данных составляет один байт (т. Е. 8 бит). Многобайтовые 
+   элементы данных представляют собой конкатенацию байтов слева 
+   направо и сверху вниз. Из потока байтов многобайтовый элемент 
+   (числовой в примере) формируется (с использованием нотации C) 
+   следующим образом:
+   
       value = (byte[0] << 8*(n-1)) | (byte[1] << 8*(n-2)) |
               ... | byte[n-1];
 
-   This byte ordering for multi-byte values is the commonplace network
-   byte order or big-endian format.
+   Этот порядок байтов для многобайтовых значений является обычным 
+   сетевым порядком байтов или форматом с прямым порядком байтов.
 
 ## 4.2.  Miscellaneous
 
-   Comments begin with "/*" and end with "*/".
+   Комментарии начинаются с «/ *» и заканчиваются «* /».
 
-   Optional components are denoted by enclosing them in "[[ ]]" double
-   brackets.
+   Необязательные компоненты обозначаются заключением их в двойные скобки «[[]]».
 
-   Single-byte entities containing uninterpreted data are of type
-   opaque.
+   Однобайтовые объекты, содержащие неинтерпретированные данные, относятся к непрозрачному типу.
+   
+## 4.3.  Vectors
 
-4.3.  Vectors
-
-   A vector (single-dimensioned array) is a stream of homogeneous data
-   elements.  The size of the vector may be specified at documentation
-   time or left unspecified until runtime.  In either case, the length
-   declares the number of bytes, not the number of elements, in the
-   vector.  The syntax for specifying a new type, T', that is a fixed-
-   length vector of type T is
-
+   Вектор (одномерный массив) - это поток однородных элементов данных. 
+   Размер вектора может быть указан во время документации или оставлен 
+   неопределенным до времени выполнения. В любом случае длина объявляет 
+   количество байтов, а не количество элементов в векторе. Синтаксис 
+   для определения нового типа T ', который является вектором 
+   фиксированной длины типа T, следующий: 
+   
       T T'[n];
 
-   Here, T' occupies n bytes in the data stream, where n is a multiple
-   of the size of T.  The length of the vector is not included in the
-   encoded stream.
+   Здесь T 'занимает n байтов в потоке данных, где n кратно размеру T. 
+   Длина вектора не включается в кодированный поток.
 
-   In the following example, Datum is defined to be three consecutive
-   bytes that the protocol does not interpret, while Data is three
-   consecutive Datum, consuming a total of nine bytes.
+   В следующем примере Datum определяется как три последовательных 
+   байта, которые протокол не интерпретирует, а Data - это три 
+   последовательных Datum, занимающих в общей сложности девять байтов.
 
       opaque Datum[3];      /* three uninterpreted bytes */
       Datum Data[9];        /* 3 consecutive 3 byte vectors */
 
-   Variable-length vectors are defined by specifying a subrange of legal
-   lengths, inclusively, using the notation <floor..ceiling>.  When
-   these are encoded, the actual length precedes the vector's contents
-   in the byte stream.  The length will be in the form of a number
-   consuming as many bytes as required to hold the vector's specified
-   maximum (ceiling) length.  A variable-length vector with an actual
-   length field of zero is referred to as an empty vector.
+   Векторы переменной длины определяются путем указания поддиапазона 
+   допустимых длин, включительно, с использованием обозначения 
+   <floor..ceiling>. Когда они закодированы, фактическая длина 
+   предшествует содержимому вектора в потоке байтов. Длина будет в 
+   форме числа, занимающего столько байтов, сколько требуется для 
+   хранения указанной максимальной (максимальной) длины вектора. 
+   Вектор переменной длины с нулевым полем фактической длины 
+   называется пустым вектором.
 
       T T'<floor..ceiling>;
 
-   In the following example, mandatory is a vector that must contain
-   between 300 and 400 bytes of type opaque.  It can never be empty.
-   The actual length field consumes two bytes, a uint16, which is
-   sufficient to represent the value 400 (see Section 4.4).  On the
-   other hand, longer can represent up to 800 bytes of data, or 400
-   uint16 elements, and it may be empty.  Its encoding will include a
-   two-byte actual length field prepended to the vector.  The length of
-   an encoded vector must be an even multiple of the length of a single
-   element (for example, a 17-byte vector of uint16 would be illegal).
+   В следующем примере обязательным является вектор, который должен 
+   содержать от 300 до 400 байтов типа opaque. Он никогда не может 
+   быть пустым. Фактическое поле длины занимает два байта, uint16, 
+   которых достаточно для представления значения 400 (см. Раздел 4.4). 
+   С другой стороны, более длинный может представлять до 800 байт 
+   данных или 400 элементов uint16, и он может быть пустым. Его 
+   кодирование будет включать двухбайтовое поле фактической длины, 
+   добавленное к вектору. Длина закодированного вектора должна быть 
+   даже кратной длине одного элемента (например, 17-байтовый вектор 
+   uint16 будет недопустимым).
 
       opaque mandatory<300..400>;
             /* length field is 2 bytes, cannot be empty */
       uint16 longer<0..800>;
             /* zero to 400 16-bit unsigned integers */
 
-4.4.  Numbers
+## 4.4.  Numbers
 
    The basic numeric data type is an unsigned byte (uint8).  All larger
    numeric data types are formed from fixed-length series of bytes
@@ -305,7 +298,7 @@ RFC 5246                          TLS                        August 2008
    represented as unsigned integers (i.e., leading zero octets are not
    required even if the most significant bit is set).
 
-4.5.  Enumerateds
+## 4.5.  Enumerateds
 
    An additional sparse data type is available called enum.  A field of
    type enum can only assume the values declared in the definition.
@@ -363,7 +356,7 @@ RFC 5246                          TLS                        August 2008
    T.f2 refers to the second field of the previous declaration.
    Structure definitions may be embedded.
 
-4.6.1.  Variants
+### 4.6.1.  Variants
 
    Defined structures may have variants based on some knowledge that is
    available within the environment.  The selector must be an enumerated
@@ -396,17 +389,17 @@ RFC 5246                          TLS                        August 2008
    For example:
 
       enum { apple, orange, banana } VariantTag;
-    
+
       struct {
           uint16 number;
           opaque string<0..10>; /* variable length */
       } V1;
-    
+
       struct {
           uint32 number;
           opaque string[10];    /* fixed length */
       } V2;
-    
+
       struct {
           select (VariantTag) { /* value of selector is implicit */
               case apple:
@@ -418,102 +411,80 @@ RFC 5246                          TLS                        August 2008
       } VariantRecord;
 
 
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 11]
-
-RFC 5246                          TLS                        August 2008
-
-
 ## 4.7.  Cryptographic Attributes
 
-   The five cryptographic operations -- digital signing, stream cipher
-   encryption, block cipher encryption, authenticated encryption with
-   additional data (AEAD) encryption, and public key encryption -- are
-   designated digitally-signed, stream-ciphered, block-ciphered, aead-
-   ciphered, and public-key-encrypted, respectively.  A field's
-   cryptographic processing is specified by prepending an appropriate
-   key word designation before the field's type specification.
-   Cryptographic keys are implied by the current session state (see
-   Section 6.1).
+   Пять криптографических операций - цифровая подпись, шифрование потокового 
+   шифрования, шифрование блочного шифра, шифрование с аутентификацией и 
+   дополнительными данными (AEAD) и шифрование с открытым ключом - 
+   обозначаются с цифровой подписью, с потоковым шифрованием, с блочным 
+   шифрованием, с шифрованием с шифрованием. , и с шифрованием с открытым 
+   ключом соответственно. Криптографическая обработка поля указывается путем 
+   добавления соответствующего обозначения ключевого слова перед спецификацией 
+   типа поля. Криптографические ключи подразумеваются текущим состоянием 
+   сеанса (см. Раздел 6.1).
 
-   A digitally-signed element is encoded as a struct DigitallySigned:
+   Элемент с цифровой подписью кодируется как структура DigitallySigned:
 
       struct {
          SignatureAndHashAlgorithm algorithm;
          opaque signature<0..2^16-1>;
       } DigitallySigned;
 
-   The algorithm field specifies the algorithm used (see Section
-   7.4.1.4.1 for the definition of this field).  Note that the
-   introduction of the algorithm field is a change from previous
-   versions.  The signature is a digital signature using those
-   algorithms over the contents of the element.  The contents themselves
-   do not appear on the wire but are simply calculated.  The length of
-   the signature is specified by the signing algorithm and key.
+   Поле алгоритма определяет используемый алгоритм (определение этого поля см. 
+   В разделе 7.4.1.4.1). Обратите внимание, что введение поля алгоритма является
+    изменением по сравнению с предыдущими версиями. Подпись - это цифровая 
+    подпись, использующая эти алгоритмы над содержимым элемента. Само содержимое 
+    на проводе не отображается, а просто рассчитывается. Длина подписи 
+    определяется алгоритмом подписи и ключом.
 
-   In RSA signing, the opaque vector contains the signature generated
-   using the RSASSA-PKCS1-v1_5 signature scheme defined in [PKCS1].  As
-   discussed in [PKCS1], the DigestInfo MUST be DER-encoded [X680]
-   [X690].  For hash algorithms without parameters (which includes
-   SHA-1), the DigestInfo.AlgorithmIdentifier.parameters field MUST be
-   NULL, but implementations MUST accept both without parameters and
-   with NULL parameters.  Note that earlier versions of TLS used a
-   different RSA signature scheme that did not include a DigestInfo
-   encoding.
+   При подписании RSA непрозрачный вектор содержит подпись, сгенерированную с 
+   использованием схемы подписи RSASSA-PKCS1-v1_5, определенной в [PKCS1]. 
+   Как обсуждалось в [PKCS1], DigestInfo ДОЛЖЕН быть закодирован по DER [X680] [X690]. 
+   Для хэш-алгоритмов без параметров (включая SHA-1) поле 
+   DigestInfo.AlgorithmIdentifier.parameters ДОЛЖНО быть NULL, но реализации ДОЛЖНЫ 
+   принимать как без параметров, так и с параметрами NULL. Обратите внимание, что 
+   более ранние версии TLS использовали другую схему подписи RSA, которая не включала 
+   кодировку DigestInfo.
 
-   In DSA, the 20 bytes of the SHA-1 hash are run directly through the
-   Digital Signing Algorithm with no additional hashing.  This produces
-   two values, r and s.  The DSA signature is an opaque vector, as
-   above, the contents of which are the DER encoding of:
-
+   В DSA 20 байтов хэша SHA-1 проходят непосредственно через алгоритм цифровой подписи 
+   без дополнительного хеширования. Это дает два значения, r и s. Подпись DSA - это 
+   непрозрачный вектор, как указано выше, содержимое которого является кодировкой DER:
+   
       Dss-Sig-Value ::= SEQUENCE {
           r INTEGER,
           s INTEGER
       }
 
+   Примечание. В текущей терминологии DSA относится к алгоритму цифровой подписи, а 
+   DSS - к стандарту NIST. В исходных спецификациях SSL и TLS «DSS» использовался 
+   повсеместно. В этом документе термин «DSA» используется для обозначения алгоритма, 
+   «DSS» - для обозначения стандарта, и используется термин «DSS» в определениях 
+   кодовых точек для исторической непрерывности.
 
+   При шифровании потокового шифра открытый текст обрабатывается методом исключающего 
+   ИЛИ с идентичным объемом выходных данных, генерируемых криптографически безопасным 
+   генератором псевдослучайных чисел с ключами.
 
+   При блочном шифровании каждый блок открытого текста шифруется до блока зашифрованного 
+   текста. Все шифрование блочного шифра выполняется в режиме CBC (Cipher Block Chaining), 
+   и все элементы, которые зашифрованы с помощью блочного шифрования, будут точно кратны 
+   длине блока шифра.
 
+   В шифровании AEAD открытый текст одновременно шифруется и защищается целостность. 
+   Входные данные могут иметь любую длину, а зашифрованные выходные данные обычно 
+   больше, чем входные, чтобы учесть значение проверки целостности.
 
-Dierks & Rescorla           Standards Track                    [Page 12]
-
-RFC 5246                          TLS                        August 2008
+   При шифровании с открытым ключом алгоритм с открытым ключом используется для 
+   шифрования данных таким образом, чтобы их можно было расшифровать только с помощью 
+   соответствующего закрытого ключа. Элемент, зашифрованный с открытым ключом, 
+   кодируется как непрозрачный вектор <0..2 ^ 16-1>, длина которого определяется 
+   алгоритмом шифрования и ключом.
 
+   Шифрование RSA выполняется с использованием схемы шифрования RSAES-PKCS1-v1_5, 
+   определенной в [PKCS1].
 
-   Note: In current terminology, DSA refers to the Digital Signature
-   Algorithm and DSS refers to the NIST standard.  In the original SSL
-   and TLS specs, "DSS" was used universally.  This document uses "DSA"
-   to refer to the algorithm, "DSS" to refer to the standard, and it
-   uses "DSS" in the code point definitions for historical continuity.
-
-   In stream cipher encryption, the plaintext is exclusive-ORed with an
-   identical amount of output generated from a cryptographically secure
-   keyed pseudorandom number generator.
-
-   In block cipher encryption, every block of plaintext encrypts to a
-   block of ciphertext.  All block cipher encryption is done in CBC
-   (Cipher Block Chaining) mode, and all items that are block-ciphered
-   will be an exact multiple of the cipher block length.
-
-   In AEAD encryption, the plaintext is simultaneously encrypted and
-   integrity protected.  The input may be of any length, and aead-
-   ciphered output is generally larger than the input in order to
-   accommodate the integrity check value.
-
-   In public key encryption, a public key algorithm is used to encrypt
-   data in such a way that it can be decrypted only with the matching
-   private key.  A public-key-encrypted element is encoded as an opaque
-   vector <0..2^16-1>, where the length is specified by the encryption
-   algorithm and key.
-
-   RSA encryption is done using the RSAES-PKCS1-v1_5 encryption scheme
-   defined in [PKCS1].
-
-   In the following example
-
+   В следующем примере
+    
       stream-ciphered struct {
           uint8 field1;
           uint8 field2;
@@ -523,25 +494,13 @@ RFC 5246                          TLS                        August 2008
           };
       } UserType;
 
-   The contents of the inner struct (field3 and field4) are used as
-   input for the signature/hash algorithm, and then the entire structure
-   is encrypted with a stream cipher.  The length of this structure, in
-   bytes, would be equal to two bytes for field1 and field2, plus two
-   bytes for the signature and hash algorithm, plus two bytes for the
-   length of the signature, plus the length of the output of the signing
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 13]
-
-RFC 5246                          TLS                        August 2008
-
-
-   algorithm.  The length of the signature is known because the
-   algorithm and key used for the signing are known prior to encoding or
-   decoding this structure.
+   Содержимое внутренней структуры (field3 и field4) используется в качестве входных 
+   данных для алгоритма подписи / хеширования, а затем вся структура шифруется с помощью 
+   потокового шифра. Длина этой структуры в байтах будет равна двум байтам для field1 
+   и field2, плюс два байта для подписи и алгоритма хеширования, плюс два байта для 
+   длины подписи, плюс длина вывода алгоритма подписи. . Длина подписи известна, потому 
+   что алгоритм и ключ, используемые для подписи, известны до кодирования или 
+   декодирования этой структуры.
 
 ## 4.8.  Constants
 
@@ -558,7 +517,7 @@ RFC 5246                          TLS                        August 2008
           uint8 f1;
           uint8 f2;
       } Example1;
-    
+
       Example1 ex1 = {1, 4};  /* assigns f1 = 1, f2 = 4 */
 
 #5.  HMAC and the Pseudorandom Function
@@ -584,15 +543,6 @@ RFC 5246                          TLS                        August 2008
    First, we define a data expansion function, P_hash(secret, data),
    that uses a single hash function to expand a secret and seed into an
    arbitrary quantity of output:
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 14]
-
-RFC 5246                          TLS                        August 2008
 
 
       P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) +
@@ -626,142 +576,101 @@ RFC 5246                          TLS                        August 2008
 
 #6.  The TLS Record Protocol
 
-   The TLS Record Protocol is a layered protocol.  At each layer,
-   messages may include fields for length, description, and content.
-   The Record Protocol takes messages to be transmitted, fragments the
-   data into manageable blocks, optionally compresses the data, applies
-   a MAC, encrypts, and transmits the result.  Received data is
-   decrypted, verified, decompressed, reassembled, and then delivered to
-   higher-level clients.
+ Протокол записи TLS - это многоуровневый протокол. На каждом уровне сообщения
+ могут включать в себя поля для длины, описания и содержания. Протокол записи 
+ принимает сообщения для передачи, фрагментирует данные на управляемые блоки, 
+ при необходимости сжимает данные, применяет MAC, шифрует и передает результат. 
+ Полученные данные расшифровываются, проверяются, распаковываются, повторно 
+ собираются и затем доставляются клиентам более высокого уровня.
 
-   Four protocols that use the record protocol are described in this
-   document: the handshake protocol, the alert protocol, the change
-   cipher spec protocol, and the application data protocol.  In order to
-   allow extension of the TLS protocol, additional record content types
-   can be supported by the record protocol.  New record content type
-   values are assigned by IANA in the TLS Content Type Registry as
-   described in Section 12.
+ В этом документе описаны четыре протокола, которые используют протокол записи: 
+ протокол установления связи, протокол предупреждений, протокол изменения 
+ спецификации шифра и протокол данных приложения. Чтобы разрешить расширение 
+ протокола TLS, протоколом записи могут поддерживаться дополнительные типы 
+ содержимого записей. Новые значения типа содержимого записи назначаются IANA 
+ в реестре типов содержимого TLS, как описано в разделе 12.
 
+ Реализации НЕ ДОЛЖНЫ отправлять типы записей, не определенные в этом документе, 
+ если это не согласовано каким-либо расширением. Если реализация TLS получает 
+ неожиданный тип записи, она ДОЛЖНА отправить предупреждение unknown_message.
 
+ Любой протокол, предназначенный для использования поверх TLS, должен быть тщательно 
+ разработан, чтобы противостоять всем возможным атакам на него. На практике это 
+ означает, что разработчик протокола должен знать, какие свойства безопасности 
+ TLS предоставляет, а какие не предоставляет, и не может безопасно полагаться 
+ на последние.
 
-
-
-Dierks & Rescorla           Standards Track                    [Page 15]
-
-RFC 5246                          TLS                        August 2008
-
-
-   Implementations MUST NOT send record types not defined in this
-   document unless negotiated by some extension.  If a TLS
-   implementation receives an unexpected record type, it MUST send an
-   unexpected_message alert.
-
-   Any protocol designed for use over TLS must be carefully designed to
-   deal with all possible attacks against it.  As a practical matter,
-   this means that the protocol designer must be aware of what security
-   properties TLS does and does not provide and cannot safely rely on
-   the latter.
-
-   Note in particular that type and length of a record are not protected
-   by encryption.  If this information is itself sensitive, application
-   designers may wish to take steps (padding, cover traffic) to minimize
-   information leakage.
+ Обратите внимание, в частности, что тип и длина записи не защищены шифрованием. 
+ Если эта информация сама по себе является конфиденциальной, разработчики приложений 
+ могут предпринять шаги (заполнение, закрытие трафика), чтобы минимизировать 
+ утечку информации.
 
 ## 6.1.  Connection States
 
-   A TLS connection state is the operating environment of the TLS Record
-   Protocol.  It specifies a compression algorithm, an encryption
-   algorithm, and a MAC algorithm.  In addition, the parameters for
-   these algorithms are known: the MAC key and the bulk encryption keys
-   for the connection in both the read and the write directions.
-   Logically, there are always four connection states outstanding: the
-   current read and write states, and the pending read and write states.
-   All records are processed under the current read and write states.
-   The security parameters for the pending states can be set by the TLS
-   Handshake Protocol, and the ChangeCipherSpec can selectively make
-   either of the pending states current, in which case the appropriate
-   current state is disposed of and replaced with the pending state; the
-   pending state is then reinitialized to an empty state.  It is illegal
-   to make a state that has not been initialized with security
-   parameters a current state.  The initial current state always
-   specifies that no encryption, compression, or MAC will be used.
+ Состояние подключения TLS - это рабочая среда протокола записи TLS. Он определяет 
+ алгоритм сжатия, алгоритм шифрования и алгоритм MAC. Кроме того, известны параметры 
+ этих алгоритмов: ключ MAC и ключи массового шифрования для соединения как в направлении 
+ чтения, так и в направлении записи. Логически всегда остается четыре невыполненных 
+ состояния соединения: текущие состояния чтения и записи и ожидающие состояния чтения 
+ и записи. Все записи обрабатываются в текущих состояниях чтения и записи. Параметры 
+ безопасности для ожидающих состояний могут быть установлены протоколом установления 
+ связи TLS, а ChangeCipherSpec может выборочно сделать любое из ожидающих состояний 
+ текущим, и в этом случае соответствующее текущее состояние удаляется и заменяется 
+ ожидающим состоянием; затем ожидающее состояние повторно инициализируется в пустое 
+ состояние. Нельзя сделать состояние, которое не было инициализировано параметрами 
+ безопасности, текущим состоянием. Исходное текущее состояние всегда указывает, что 
+ шифрование, сжатие или MAC не будут использоваться.
 
-   The security parameters for a TLS Connection read and write state are
-   set by providing the following values:
-
+ Параметры безопасности для состояния чтения и записи TLS-соединения задаются следующими 
+ значениями:
+   
    connection end
-      Whether this entity is considered the "client" or the "server" in
-      this connection.
+      Считается ли этот объект «клиентом» или «сервером» в этом соединении.
 
    PRF algorithm
-      An algorithm used to generate keys from the master secret (see
-      Sections 5 and 6.3).
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 16]
-
-RFC 5246                          TLS                        August 2008
-
+      Алгоритм, используемый для генерации ключей из главного секрета (см. Разделы 5 и 6.3).
 
    bulk encryption algorithm
-      An algorithm to be used for bulk encryption.  This specification
-      includes the key size of this algorithm, whether it is a block,
-      stream, or AEAD cipher, the block size of the cipher (if
-      appropriate), and the lengths of explicit and implicit
-      initialization vectors (or nonces).
+      Алгоритм, который будет использоваться для массового шифрования. Эта спецификация 
+      включает размер ключа этого алгоритма, будь то блок, поток или шифр AEAD, размер 
+      блока шифра (при необходимости) и длины явных и неявных векторов инициализации (или 
+      одноразовых значений).
 
    MAC algorithm
-      An algorithm to be used for message authentication.  This
-      specification includes the size of the value returned by the MAC
-      algorithm.
+      Алгоритм, который будет использоваться для аутентификации сообщения. Эта спецификация 
+      включает размер значения, возвращаемого алгоритмом MAC.
 
    compression algorithm
-      An algorithm to be used for data compression.  This specification
-      must include all information the algorithm requires to do
-      compression.
+      Алгоритм, который будет использоваться для сжатия данных. Эта спецификация должна 
+      включать всю информацию, которая требуется алгоритму для сжатия.
 
    master secret
-      A 48-byte secret shared between the two peers in the connection.
+      48-байтовый секрет, совместно используемый двумя одноранговыми узлами в соединении.
 
    client random
-      A 32-byte value provided by the client.
+      32-байтовое значение, предоставляемое клиентом.
 
    server random
-      A 32-byte value provided by the server.
+      32-байтовое значение, предоставляемое сервером.
 
-      These parameters are defined in the presentation language as:
-    
+   Эти параметры определены на языке представления как:
+
       enum { server, client } ConnectionEnd;
-    
+
       enum { tls_prf_sha256 } PRFAlgorithm;
-    
+
       enum { null, rc4, 3des, aes }
         BulkCipherAlgorithm;
-    
+
       enum { stream, block, aead } CipherType;
-    
+
       enum { null, hmac_md5, hmac_sha1, hmac_sha256,
            hmac_sha384, hmac_sha512} MACAlgorithm;
-    
+
       enum { null(0), (255) } CompressionMethod;
-    
+
       /* The algorithms specified in CompressionMethod, PRFAlgorithm,
          BulkCipherAlgorithm, and MACAlgorithm may be added to. */
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 17]
-
-RFC 5246                          TLS                        August 2008
-
 
       struct {
           ConnectionEnd          entity;
@@ -781,9 +690,8 @@ RFC 5246                          TLS                        August 2008
           opaque                 server_random[32];
       } SecurityParameters;
 
-   The record layer will use the security parameters to generate the
-   following six items (some of which are not required by all ciphers,
-   and are thus empty):
+ Слой записи будет использовать параметры безопасности для генерации следующих 
+ шести элементов (некоторые из которых не требуются для всех шифров и поэтому пусты):
 
       client write MAC key
       server write MAC key
@@ -792,63 +700,57 @@ RFC 5246                          TLS                        August 2008
       client write IV
       server write IV
 
-   The client write parameters are used by the server when receiving and
-   processing records and vice versa.  The algorithm used for generating
-   these items from the security parameters is described in Section 6.3.
+ Параметры записи клиента используются сервером при получении и обработке записей и 
+ наоборот. Алгоритм, используемый для создания этих элементов из параметров безопасности, 
+ описан в Разделе 6.3.
 
-   Once the security parameters have been set and the keys have been
-   generated, the connection states can be instantiated by making them
-   the current states.  These current states MUST be updated for each
-   record processed.  Each connection state includes the following
-   elements:
+ После того, как параметры безопасности установлены и ключи сгенерированы, можно создать 
+ экземпляры состояний соединения, сделав их текущими состояниями. Эти текущие состояния 
+ ДОЛЖНЫ обновляться для каждой обрабатываемой записи. Каждое состояние подключения 
+ включает в себя следующие элементы:
 
    compression state
-      The current state of the compression algorithm.
+      Текущее состояние алгоритма сжатия.
 
    cipher state
-      The current state of the encryption algorithm.  This will consist
-      of the scheduled key for that connection.  For stream ciphers,
-      this will also contain whatever state information is necessary to
-      allow the stream to continue to encrypt or decrypt data.
+      Текущее состояние алгоритма шифрования. Он будет состоять из запланированного ключа 
+      для этого подключения. Для потоковых шифров он также будет содержать любую информацию 
+      о состоянии, необходимую, чтобы позволить потоку продолжать шифрование или дешифрование 
+      данных.
 
    MAC key
-      The MAC key for this connection, as generated above.
+      MAC-ключ для этого подключения, как указано выше.
 
    sequence number
-      Each connection state contains a sequence number, which is
-      maintained separately for read and write states.  The sequence
-      number MUST be set to zero whenever a connection state is made the
-      active state.  Sequence numbers are of type uint64 and may not
-      exceed 2^64-1.  Sequence numbers do not wrap.  If a TLS
-      implementation would need to wrap a sequence number, it must
-      renegotiate instead.  A sequence number is incremented after each
-      record: specifically, the first record transmitted under a
-      particular connection state MUST use sequence number 0.
+      Каждое состояние соединения содержит порядковый номер, который поддерживается отдельно 
+      для состояний чтения и записи. Порядковый номер ДОЛЖЕН быть установлен на ноль всякий раз, 
+      когда состояние соединения становится активным. Порядковые номера имеют тип uint64 и не 
+      могут превышать 2 ^ 64-1. Порядковые номера не переносятся. Если для реализации TLS 
+      потребуется обернуть порядковый номер, вместо этого необходимо выполнить повторное 
+      согласование. Порядковый номер увеличивается после каждой записи: в частности, первая запись, 
+      передаваемая в определенном состоянии соединения, ДОЛЖНА использовать порядковый номер 0.
 
 ## 6.2.  Record Layer
 
-   The TLS record layer receives uninterpreted data from higher layers
-   in non-empty blocks of arbitrary size.
+ The TLS record layer receives uninterpreted data from higher layers   in non-empty blocks of arbitrary size.
 
-6.2.1.  Fragmentation
+### 6.2.1.  Fragmentation
 
-   The record layer fragments information blocks into TLSPlaintext
-   records carrying data in chunks of 2^14 bytes or less.  Client
-   message boundaries are not preserved in the record layer (i.e.,
-   multiple client messages of the same ContentType MAY be coalesced
-   into a single TLSPlaintext record, or a single message MAY be
-   fragmented across several records).
+ Уровень записи фрагментирует информационные блоки в записи TLSPlaintext, несущие данные блоками 
+ по 2 ^ 14 байтов или меньше. Границы клиентских сообщений не сохраняются на уровне записи (т. Е. 
+ Несколько клиентских сообщений одного и того же ContentType МОГУТ быть объединены в одну запись 
+ TLSPlaintext, или одно сообщение МОЖЕТ быть фрагментировано по нескольким записям).
 
       struct {
           uint8 major;
           uint8 minor;
       } ProtocolVersion;
-    
+
       enum {
           change_cipher_spec(20), alert(21), handshake(22),
           application_data(23), (255)
       } ContentType;
-    
+
       struct {
           ContentType type;
           ProtocolVersion version;
@@ -857,71 +759,44 @@ RFC 5246                          TLS                        August 2008
       } TLSPlaintext;
 
    type
-      The higher-level protocol used to process the enclosed fragment.
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 19]
-
-RFC 5246                          TLS                        August 2008
-
+      Протокол более высокого уровня, используемый для обработки вложенного фрагмента.
 
    version
-      The version of the protocol being employed.  This document
-      describes TLS Version 1.2, which uses the version { 3, 3 }.  The
-      version value 3.3 is historical, deriving from the use of {3, 1}
-      for TLS 1.0.  (See Appendix A.1.)  Note that a client that
-      supports multiple versions of TLS may not know what version will
-      be employed before it receives the ServerHello.  See Appendix E
-      for discussion about what record layer version number should be
-      employed for ClientHello.
+      Версия используемого протокола. В этом документе описывается TLS версии 1.2, в которой 
+      используется версия {3, 3}. Значение версии 3.3 является историческим, полученным из-за 
+      использования {3, 1} для TLS 1.0. (См. Приложение A.1.) Обратите внимание, что клиент, 
+      поддерживающий несколько версий TLS, может не знать, какая версия будет использоваться, 
+      прежде чем он получит ServerHello. См. Приложение E для обсуждения того, какой номер 
+      версии уровня записи следует использовать для ClientHello.
 
    length
-      The length (in bytes) of the following TLSPlaintext.fragment.  The
-      length MUST NOT exceed 2^14.
+      Длина (в байтах) следующего TLSPlaintext.fragment. Длина НЕ ДОЛЖНА превышать 2 ^ 14.
 
    fragment
-      The application data.  This data is transparent and treated as an
-      independent block to be dealt with by the higher-level protocol
-      specified by the type field.
+      Данные приложения. Эти данные прозрачны и обрабатываются как независимый блок, который 
+      должен обрабатываться протоколом более высокого уровня, указанным в поле типа.
+      
+ Реализации НЕ ДОЛЖНЫ отправлять фрагменты нулевой длины типов содержимого Handshake, Alert 
+ или ChangeCipherSpec. МОГУТ быть отправлены фрагменты данных приложения нулевой длины, 
+ поскольку они потенциально полезны в качестве контрмеры при анализе трафика.
 
-   Implementations MUST NOT send zero-length fragments of Handshake,
-   Alert, or ChangeCipherSpec content types.  Zero-length fragments of
-   Application data MAY be sent as they are potentially useful as a
-   traffic analysis countermeasure.
+ Примечание. Данные разных типов содержимого уровня записи TLS МОГУТ чередоваться. Данные 
+ приложения обычно имеют более низкий приоритет для передачи, чем другие типы контента. Однако 
+ записи ДОЛЖНЫ доставляться в сеть в том же порядке, в котором они защищены уровнем записи. 
+ Получатели ДОЛЖНЫ получать и обрабатывать перемежающийся трафик прикладного уровня во время 
+ рукопожатий, следующих за первым в соединении.
 
-   Note: Data of different TLS record layer content types MAY be
-   interleaved.  Application data is generally of lower precedence for
-   transmission than other content types.  However, records MUST be
-   delivered to the network in the same order as they are protected by
-   the record layer.  Recipients MUST receive and process interleaved
-   application layer traffic during handshakes subsequent to the first
-   one on a connection.
+### 6.2.2.  Record Compression and Decompression
 
-6.2.2.  Record Compression and Decompression
+ Все записи сжимаются с использованием алгоритма сжатия, определенного в текущем состоянии сеанса. 
+ Всегда есть активный алгоритм сжатия; однако изначально он определяется как CompressionMethod.null. 
+ Алгоритм сжатия переводит структуру TLSPlaintext в структуру TLSCompressed. Функции сжатия 
+ инициализируются информацией о состоянии по умолчанию всякий раз, когда состояние соединения 
+ становится активным. [RFC3749] описывает алгоритмы сжатия для TLS.
 
-   All records are compressed using the compression algorithm defined in
-   the current session state.  There is always an active compression
-   algorithm; however, initially it is defined as
-   CompressionMethod.null.  The compression algorithm translates a
-   TLSPlaintext structure into a TLSCompressed structure.  Compression
-   functions are initialized with default state information whenever a
-   connection state is made active.  [RFC3749] describes compression
-   algorithms for TLS.
-
-   Compression must be lossless and may not increase the content length
-   by more than 1024 bytes.  If the decompression function encounters a
-   TLSCompressed.fragment that would decompress to a length in excess of
-   2^14 bytes, it MUST report a fatal decompression failure error.
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 20]
-
-RFC 5246                          TLS                        August 2008
-
+ Сжатие должно быть без потерь и не должно увеличивать длину содержимого более чем на 1024 байта. 
+ Если функция декомпрессии встречает TLSCompressed.fragment, который может распаковать до длины, 
+ превышающей 2 ^ 14 байтов, она ДОЛЖНА сообщить о фатальной ошибке сбоя декомпрессии.
 
       struct {
           ContentType type;       /* same as TLSPlaintext.type */
@@ -931,26 +806,22 @@ RFC 5246                          TLS                        August 2008
       } TLSCompressed;
 
    length
-      The length (in bytes) of the following TLSCompressed.fragment.
-      The length MUST NOT exceed 2^14 + 1024.
+      Длина (в байтах) следующего TLSCompressed.fragment. Длина НЕ ДОЛЖНА превышать 2 ^ 14 + 1024.
 
    fragment
-      The compressed form of TLSPlaintext.fragment.
+      Сжатая форма TLSPlaintext.fragment.
 
-      Note: A CompressionMethod.null operation is an identity operation;
-      no fields are altered.
-    
-      Implementation note: Decompression functions are responsible for
-      ensuring that messages cannot cause internal buffer overflows.
+Примечание. Операция CompressionMethod.null является операцией идентификации; никакие поля не изменяются.
 
-6.2.3.  Record Payload Protection
+Замечание по реализации: функции декомпрессии отвечают за то, чтобы сообщения не могли вызвать переполнение 
+внутреннего буфера.
 
-      The encryption and MAC functions translate a TLSCompressed
-      structure into a TLSCiphertext.  The decryption functions reverse
-      the process.  The MAC of the record also includes a sequence
-      number so that missing, extra, or repeated messages are
-      detectable.
-    
+### 6.2.3.  Record Payload Protection
+
+  Функции шифрования и MAC переводят структуру TLSCompressed в TLSCiphertext. Функции дешифрования 
+  обращают процесс вспять. MAC записи также включает порядковый номер, чтобы можно было обнаружить
+   отсутствующие, лишние или повторяющиеся сообщения.
+
       struct {
           ContentType type;
           ProtocolVersion version;
@@ -971,13 +842,6 @@ RFC 5246                          TLS                        August 2008
    length
       The length (in bytes) of the following TLSCiphertext.fragment.
       The length MUST NOT exceed 2^14 + 2048.
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 21]
-
-RFC 5246                          TLS                        August 2008
-
 
    fragment
       The encrypted form of TLSCompressed.fragment, with the MAC.
@@ -1019,21 +883,11 @@ RFC 5246                          TLS                        August 2008
    For both null and stream ciphers, TLSCiphertext.length is
    TLSCompressed.length plus SecurityParameters.mac_length.
 
-6.2.3.2.  CBC Block Cipher
+#### 6.2.3.2.  CBC Block Cipher
 
    For block ciphers (such as 3DES or AES), the encryption and MAC
    functions convert TLSCompressed.fragment structures to and from block
    TLSCiphertext.fragment structures.
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 22]
-
-RFC 5246                          TLS                        August 2008
-
 
       struct {
           opaque IV[SecurityParameters.record_iv_length];
@@ -1083,14 +937,6 @@ RFC 5246                          TLS                        August 2008
    Example: If the block length is 8 bytes, the content length
    (TLSCompressed.length) is 61 bytes, and the MAC length is 20 bytes,
    then the length before padding is 82 bytes (this does not include the
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 23]
-
-RFC 5246                          TLS                        August 2008
-
-
    IV.  Thus, the padding length modulo 8 must be equal to 6 in order to
    make the total length an even multiple of 8 bytes (the block length).
    The padding length can be 6, 14, 22, and so on, through 254.  If the
@@ -1118,7 +964,7 @@ RFC 5246                          TLS                        August 2008
    the large block size of existing MACs and the small size of the
    timing signal.
 
-6.2.3.3.  AEAD Ciphers
+#### 6.2.3.3.  AEAD Ciphers
 
    For AEAD [AEAD] ciphers (such as [CCM] or [GCM]), the AEAD function
    converts TLSCompressed.fragment structures to and from AEAD
@@ -1139,14 +985,6 @@ RFC 5246                          TLS                        August 2008
    Each AEAD cipher suite MUST specify how the nonce supplied to the
    AEAD operation is constructed, and what is the length of the
    GenericAEADCipher.nonce_explicit part.  In many cases, it is
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 24]
-
-RFC 5246                          TLS                        August 2008
-
-
    appropriate to use the partially implicit nonce technique described
    in Section 3.2.1 of [AEAD]; with record_iv_length being the length of
    the explicit part.  In this case, the implicit part SHOULD be derived
@@ -1193,16 +1031,6 @@ RFC 5246                          TLS                        August 2008
    by the current connection state (see Appendix A.6) from the security
    parameters provided by the handshake protocol.
 
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 25]
-
-RFC 5246                          TLS                        August 2008
-
-
    The master secret is expanded into a sequence of secure bytes, which
    is then split to a client write MAC key, a server write MAC key, a
    client write encryption key, and a server write encryption key.  Each
@@ -1241,94 +1069,54 @@ RFC 5246                          TLS                        August 2008
 
 #7.  The TLS Handshaking Protocols
 
-   TLS has three subprotocols that are used to allow peers to agree upon
-   security parameters for the record layer, to authenticate themselves,
-   to instantiate negotiated security parameters, and to report error
-   conditions to each other.
+ TLS имеет три подпротокола, которые используются, чтобы позволить одноранговым 
+ узлам согласовывать параметры безопасности для уровня записи, аутентифицировать 
+ себя, создавать экземпляры согласованных параметров безопасности и сообщать друг 
+ другу об условиях ошибки.
 
-   The Handshake Protocol is responsible for negotiating a session,
-   which consists of the following items:
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 26]
-
-RFC 5246                          TLS                        August 2008
-
-
+ Протокол рукопожатия отвечает за согласование сеанса, который состоит из следующих 
+ элементов:
+ 
    session identifier
-      An arbitrary byte sequence chosen by the server to identify an
-      active or resumable session state.
+      Произвольная последовательность байтов, выбираемая сервером для идентификации 
+      активного или возобновляемого состояния сеанса.
 
    peer certificate
-      X509v3 [PKIX] certificate of the peer.  This element of the state
-      may be null.
+      X509v3 [PKIX] сертификат партнера. Этот элемент состояния может быть нулевым.
 
    compression method
-      The algorithm used to compress data prior to encryption.
+      Алгоритм, используемый для сжатия данных перед шифрованием.
 
    cipher spec
-      Specifies the pseudorandom function (PRF) used to generate keying
-      material, the bulk data encryption algorithm (such as null, AES,
-      etc.) and the MAC algorithm (such as HMAC-SHA1).  It also defines
-      cryptographic attributes such as the mac_length.  (See Appendix
-      A.6 for formal definition.)
+      Задает псевдослучайную функцию (PRF), используемую для генерации ключевого 
+      материала, алгоритм шифрования данных (например, null, AES и т. Д.) И алгоритм 
+      MAC (например, HMAC-SHA1). Он также определяет криптографические атрибуты, такие 
+      как mac_length. (См. Формальное определение в Приложении A.6.)
 
    master secret
-      48-byte secret shared between the client and server.
+      48-байтовый секрет, совместно используемый клиентом и сервером.
 
    is resumable
-      A flag indicating whether the session can be used to initiate new
-      connections.
+      Флаг, указывающий, можно ли использовать сеанс для инициирования новых подключений.
 
-   These items are then used to create security parameters for use by
-   the record layer when protecting application data.  Many connections
-   can be instantiated using the same session through the resumption
-   feature of the TLS Handshake Protocol.
+   Эти элементы затем используются для создания параметров безопасности для использования 
+   слоем записи при защите данных приложения. Многие соединения могут быть созданы с 
+   использованием одного и того же сеанса с помощью функции возобновления протокола 
+   установления связи TLS.
 
 ## 7.1.  Change Cipher Spec Protocol
 
-   The change cipher spec protocol exists to signal transitions in
-   ciphering strategies.  The protocol consists of a single message,
-   which is encrypted and compressed under the current (not the pending)
-   connection state.  The message consists of a single byte of value 1.
+   The change cipher spec protocol exists to signal transitions in   ciphering strategies.  The protocol consists of a single message,   which is encrypted and compressed under the current (not the pending)   connection state.  The message consists of a single byte of value 1.
 
       struct {
           enum { change_cipher_spec(1), (255) } type;
       } ChangeCipherSpec;
 
-   The ChangeCipherSpec message is sent by both the client and the
-   server to notify the receiving party that subsequent records will be
-   protected under the newly negotiated CipherSpec and keys.  Reception
-   of this message causes the receiver to instruct the record layer to
-   immediately copy the read pending state into the read current state.
-   Immediately after sending this message, the sender MUST instruct the
-   record layer to make the write pending state the write active state.
+   The ChangeCipherSpec message is sent by both the client and the   server to notify the receiving party that subsequent records will be   protected under the newly negotiated CipherSpec and keys.  Reception   of this message causes the receiver to instruct the record layer to   immediately copy the read pending state into the read current state.   Immediately after sending this message, the sender MUST instruct the   record layer to make the write pending state the write active state.
 
+   (See Section 6.1.)  The ChangeCipherSpec message is sent during the   handshake after the security parameters have been agreed upon, but   before the verifying Finished message is sent.
 
-
-Dierks & Rescorla           Standards Track                    [Page 27]
-
-RFC 5246                          TLS                        August 2008
-
-
-   (See Section 6.1.)  The ChangeCipherSpec message is sent during the
-   handshake after the security parameters have been agreed upon, but
-   before the verifying Finished message is sent.
-
-   Note: If a rehandshake occurs while data is flowing on a connection,
-   the communicating parties may continue to send data using the old
-   CipherSpec.  However, once the ChangeCipherSpec has been sent, the
-   new CipherSpec MUST be used.  The first side to send the
-   ChangeCipherSpec does not know that the other side has finished
-   computing the new keying material (e.g., if it has to perform a
-   time-consuming public key operation).  Thus, a small window of time,
-   during which the recipient must buffer the data, MAY exist.  In
-   practice, with modern machines this interval is likely to be fairly
-   short.
+   Note: If a rehandshake occurs while data is flowing on a connection,   the communicating parties may continue to send data using the old   CipherSpec.  However, once the ChangeCipherSpec has been sent, the   new CipherSpec MUST be used.  The first side to send the   ChangeCipherSpec does not know that the other side has finished   computing the new keying material (e.g., if it has to perform a   time-consuming public key operation).  Thus, a small window of time,   during which the recipient must buffer the data, MAY exist.  In   practice, with modern machines this interval is likely to be fairly   short.
 
 ## 7.2.  Alert Protocol
 
@@ -1343,7 +1131,7 @@ RFC 5246                          TLS                        August 2008
    compressed, as specified by the current connection state.
 
       enum { warning(1), fatal(2), (255) } AlertLevel;
-    
+
       enum {
           close_notify(0),
           unexpected_message(10),
@@ -1363,14 +1151,6 @@ RFC 5246                          TLS                        August 2008
           access_denied(49),
           decode_error(50),
           decrypt_error(51),
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 28]
-
-RFC 5246                          TLS                        August 2008
-
-
           export_restriction_RESERVED(60),
           protocol_version(70),
           insufficient_security(71),
@@ -1380,7 +1160,7 @@ RFC 5246                          TLS                        August 2008
           unsupported_extension(110),
           (255)
       } AlertDescription;
-    
+
       struct {
           AlertLevel level;
           AlertDescription description;
@@ -1418,15 +1198,6 @@ RFC 5246                          TLS                        August 2008
    transfer any additional data, but will only close the underlying
    transport connection, then the implementation MAY choose to close the
    transport without waiting for the responding close_notify.  No part
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 29]
-
-RFC 5246                          TLS                        August 2008
-
-
    of this standard should be taken to dictate the manner in which a
    usage profile for TLS manages its data transport, including when
    connections are opened or closed.
@@ -1472,16 +1243,6 @@ RFC 5246                          TLS                        August 2008
       An inappropriate message was received.  This alert is always fatal
       and should never be observed in communication between proper
       implementations.
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 30]
-
-RFC 5246                          TLS                        August 2008
-
 
    bad_record_mac
       This alert is returned if a record is received with an incorrect
@@ -1530,15 +1291,6 @@ RFC 5246                          TLS                        August 2008
    certificate_revoked
       A certificate was revoked by its signer.
 
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 31]
-
-RFC 5246                          TLS                        August 2008
-
-
    certificate_expired
       A certificate has expired or is not currently valid.
 
@@ -1583,18 +1335,6 @@ RFC 5246                          TLS                        August 2008
       might be avoided for security reasons.)  This message is always
       fatal.
 
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 32]
-
-RFC 5246                          TLS                        August 2008
-
-
    insufficient_security
       Returned instead of handshake_failure when a negotiation has
       failed specifically because the server requires ciphers more
@@ -1635,15 +1375,15 @@ RFC 5246                          TLS                        August 2008
 
 ## 7.3.  Handshake Protocol Overview
 
-Криптографические параметры состояния сеанса создаются протоколом установления связи TLS, который работает поверх 
-уровня записи TLS. Когда клиент и сервер TLS впервые начинают обмениваться данными, они согласовывают версию протокола, 
-выбирают криптографические алгоритмы, при необходимости аутентифицируют друг друга и используют методы шифрования с 
+Криптографические параметры состояния сеанса создаются протоколом установления связи TLS, который работает поверх
+уровня записи TLS. Когда клиент и сервер TLS впервые начинают обмениваться данными, они согласовывают версию протокола,
+выбирают криптографические алгоритмы, при необходимости аутентифицируют друг друга и используют методы шифрования с
 открытым ключом для генерации общих секретов.
 
 
 Протокол установления связи TLS включает следующие шаги:
 
-* Обменивайтесь приветственными сообщениями, чтобы согласовать алгоритмы, обмениваться случайными значениями и 
+* Обменивайтесь приветственными сообщениями, чтобы согласовать алгоритмы, обмениваться случайными значениями и
   проверять возобновление сеанса.
 
 * Обменять необходимые криптографические параметры, чтобы позволить клиенту и серверу согласовать главный секрет.
@@ -1654,54 +1394,54 @@ RFC 5246                          TLS                        August 2008
 
 * Задайте параметры безопасности для слоя записи.
 
-* Разрешить клиенту и серверу проверить, что их партнер вычислил одинаковые параметры безопасности и что рукопожатие 
+* Разрешить клиенту и серверу проверить, что их партнер вычислил одинаковые параметры безопасности и что рукопожатие
   произошло без вмешательства злоумышленника.
-  
 
-Обратите внимание, что более высокие уровни не должны чрезмерно полагаться на то, всегда ли TLS согласовывает 
-максимально возможное соединение между двумя одноранговыми узлами. Существует несколько способов, с помощью которых 
-злоумышленник может попытаться заставить два объекта перейти к наименее безопасному методу, который они поддерживают. 
-Протокол был разработан для минимизации этого риска, но все еще доступны атаки: например, злоумышленник может 
-заблокировать доступ к порту, на котором запущена защищенная служба, или попытаться заставить одноранговые узлы 
-согласовать неаутентифицированное соединение. Основное правило состоит в том, что более высокие уровни должны 
-осознавать свои требования к безопасности и никогда не передавать информацию по каналу, менее защищенному, чем то, 
-что им требуется. Протокол TLS безопасен в том смысле, что любой набор шифров предлагает обещанный уровень 
-безопасности: если вы согласовываете 3DES с 1024-битным обменом ключами RSA с хостом, сертификат которого вы 
+
+Обратите внимание, что более высокие уровни не должны чрезмерно полагаться на то, всегда ли TLS согласовывает
+максимально возможное соединение между двумя одноранговыми узлами. Существует несколько способов, с помощью которых
+злоумышленник может попытаться заставить два объекта перейти к наименее безопасному методу, который они поддерживают.
+Протокол был разработан для минимизации этого риска, но все еще доступны атаки: например, злоумышленник может
+заблокировать доступ к порту, на котором запущена защищенная служба, или попытаться заставить одноранговые узлы
+согласовать неаутентифицированное соединение. Основное правило состоит в том, что более высокие уровни должны
+осознавать свои требования к безопасности и никогда не передавать информацию по каналу, менее защищенному, чем то,
+что им требуется. Протокол TLS безопасен в том смысле, что любой набор шифров предлагает обещанный уровень
+безопасности: если вы согласовываете 3DES с 1024-битным обменом ключами RSA с хостом, сертификат которого вы
 проверили, вы можете рассчитывать на такую ​​безопасность.
 
-Эти цели достигаются протоколом рукопожатия, который можно резюмировать следующим образом: клиент отправляет 
-сообщение ClientHello, на которое сервер должен ответить сообщением ServerHello, иначе произойдет фатальная ошибка и 
-соединение не удастся. ClientHello и ServerHello используются для установления возможностей повышения безопасности 
-между клиентом и сервером. ClientHello и ServerHello устанавливают следующие атрибуты: версия протокола, идентификатор 
-сеанса, набор шифров и метод сжатия. Кроме того, генерируются и обмениваются два случайных значения: 
+Эти цели достигаются протоколом рукопожатия, который можно резюмировать следующим образом: клиент отправляет
+сообщение ClientHello, на которое сервер должен ответить сообщением ServerHello, иначе произойдет фатальная ошибка и
+соединение не удастся. ClientHello и ServerHello используются для установления возможностей повышения безопасности
+между клиентом и сервером. ClientHello и ServerHello устанавливают следующие атрибуты: версия протокола, идентификатор
+сеанса, набор шифров и метод сжатия. Кроме того, генерируются и обмениваются два случайных значения:
 ClientHello.random и ServerHello.random.
 
-Фактический обмен ключами использует до четырех сообщений: сертификат сервера, ServerKeyExchange, сертификат клиента 
-и ClientKeyExchange. Новые методы обмена ключами могут быть созданы путем указания формата для этих сообщений и 
-определения использования сообщений, чтобы позволить клиенту и серверу согласовать общий секрет. Этот секрет ДОЛЖЕН 
-быть довольно длинным; определенные в настоящее время методы обмена ключами обмениваются секретами размером от 
+Фактический обмен ключами использует до четырех сообщений: сертификат сервера, ServerKeyExchange, сертификат клиента
+и ClientKeyExchange. Новые методы обмена ключами могут быть созданы путем указания формата для этих сообщений и
+определения использования сообщений, чтобы позволить клиенту и серверу согласовать общий секрет. Этот секрет ДОЛЖЕН
+быть довольно длинным; определенные в настоящее время методы обмена ключами обмениваются секретами размером от
 46 байтов и выше.
 
-После сообщений приветствия сервер отправит свой сертификат в сообщении сертификата, если он должен быть 
-аутентифицирован. Кроме того, сообщение ServerKeyExchange может быть отправлено, если это необходимо (например, 
-если у сервера нет сертификата или если его сертификат предназначен только для подписи). Если сервер аутентифицирован, 
-он может запросить сертификат у клиента, если он соответствует выбранному набору шифров. Затем сервер отправит 
-сообщение ServerHelloDone, указывающее, что фаза приветственного сообщения рукопожатия завершена. Затем сервер 
-будет ждать ответа клиента. Если сервер отправил сообщение CertificateRequest, клиент ДОЛЖЕН отправить сообщение 
-сертификата. Сообщение ClientKeyExchange отправлено, и его содержимое будет зависеть от алгоритма открытого ключа, 
-выбранного между ClientHello и ServerHello. Если клиент отправил сертификат с возможностью подписи, отправляется 
+После сообщений приветствия сервер отправит свой сертификат в сообщении сертификата, если он должен быть
+аутентифицирован. Кроме того, сообщение ServerKeyExchange может быть отправлено, если это необходимо (например,
+если у сервера нет сертификата или если его сертификат предназначен только для подписи). Если сервер аутентифицирован,
+он может запросить сертификат у клиента, если он соответствует выбранному набору шифров. Затем сервер отправит
+сообщение ServerHelloDone, указывающее, что фаза приветственного сообщения рукопожатия завершена. Затем сервер
+будет ждать ответа клиента. Если сервер отправил сообщение CertificateRequest, клиент ДОЛЖЕН отправить сообщение
+сертификата. Сообщение ClientKeyExchange отправлено, и его содержимое будет зависеть от алгоритма открытого ключа,
+выбранного между ClientHello и ServerHello. Если клиент отправил сертификат с возможностью подписи, отправляется
 сообщение CertificateVerify с цифровой подписью, чтобы явно подтвердить владение закрытым ключом в сертификате.
 
-На этом этапе клиент отправляет сообщение ChangeCipherSpec, и клиент копирует ожидающую спецификацию Cipher Spec 
-в текущую Cipher Spec. Затем клиент немедленно отправляет сообщение Finished с новыми алгоритмами, ключами и секретами. 
-В ответ сервер отправит собственное сообщение ChangeCipherSpec, передаст отложенное сообщение в текущую спецификацию 
-шифра и отправит свое сообщение Finished в соответствии с новой спецификацией шифра. На этом этапе рукопожатие 
-завершено, и клиент и сервер могут начать обмен данными прикладного уровня. (См. Блок-схему ниже.) Данные приложения 
-НЕ ДОЛЖНЫ отправляться до завершения первого рукопожатия (до того, как будет установлен набор шифров, отличный 
+На этом этапе клиент отправляет сообщение ChangeCipherSpec, и клиент копирует ожидающую спецификацию Cipher Spec
+в текущую Cipher Spec. Затем клиент немедленно отправляет сообщение Finished с новыми алгоритмами, ключами и секретами.
+В ответ сервер отправит собственное сообщение ChangeCipherSpec, передаст отложенное сообщение в текущую спецификацию
+шифра и отправит свое сообщение Finished в соответствии с новой спецификацией шифра. На этом этапе рукопожатие
+завершено, и клиент и сервер могут начать обмен данными прикладного уровня. (См. Блок-схему ниже.) Данные приложения
+НЕ ДОЛЖНЫ отправляться до завершения первого рукопожатия (до того, как будет установлен набор шифров, отличный
 от TLS_NULL_WITH_NULL_NULL).
 
       Client                                               Server
-    
+
       ClientHello                  -------->
                                                       ServerHello
                                                      Certificate*
@@ -1716,34 +1456,28 @@ ClientHello.random и ServerHello.random.
                                                [ChangeCipherSpec]
                                    <--------             Finished
       Application Data             <------->     Application Data
-    
+
              Figure 1.  Message flow for a full handshake
 
-   * Indicates optional or situation-dependent messages that are not
-      always sent.
+  * Обозначает необязательные или зависящие от ситуации сообщения, которые не всегда отправляются.
 
-   Note: To help avoid pipeline stalls, ChangeCipherSpec is an
-   independent TLS protocol content type, and is not actually a TLS
-   handshake message.
+   Примечание. Чтобы избежать остановок конвейера, ChangeCipherSpec является независимым типом 
+   содержимого протокола TLS и на самом деле не является сообщением подтверждения TLS.
 
-   When the client and server decide to resume a previous session or
-   duplicate an existing session (instead of negotiating new security
-   parameters), the message flow is as follows:
+   Когда клиент и сервер решают возобновить предыдущий сеанс или продублировать существующий 
+   (вместо согласования новых параметров безопасности), поток сообщений выглядит следующим образом:
 
-   The client sends a ClientHello using the Session ID of the session to
-   be resumed.  The server then checks its session cache for a match.
-   If a match is found, and the server is willing to re-establish the
-   connection under the specified session state, it will send a
-   ServerHello with the same Session ID value.  At this point, both
-   client and server MUST send ChangeCipherSpec messages and proceed
-   directly to Finished messages.  Once the re-establishment is
-   complete, the client and server MAY begin to exchange application
-   layer data.  (See flow chart below.)  If a Session ID match is not
-   found, the server generates a new session ID, and the TLS client and
-   server perform a full handshake.
+   Клиент отправляет ClientHello, используя идентификатор сеанса возобновляемого сеанса. Затем 
+   сервер проверяет свой кеш сеанса на совпадение. Если совпадение найдено, и сервер желает восстановить 
+   соединение в указанном состоянии сеанса, он отправит ServerHello с тем же значением идентификатора 
+   сеанса. На этом этапе и клиент, и сервер ДОЛЖНЫ отправлять сообщения ChangeCipherSpec и переходить 
+   непосредственно к сообщениям Finished. После завершения переустановки клиент и сервер МОГУТ начать 
+   обмен данными прикладного уровня. (См. Блок-схему ниже.) Если совпадение идентификатора сеанса не 
+   найдено, сервер генерирует новый идентификатор сеанса, а клиент и сервер TLS выполняют полное 
+   рукопожатие.
 
       Client                                                Server
-    
+
       ClientHello                   -------->
                                                        ServerHello
                                                 [ChangeCipherSpec]
@@ -1751,20 +1485,17 @@ ClientHello.random и ServerHello.random.
       [ChangeCipherSpec]
       Finished                      -------->
       Application Data              <------->     Application Data
-    
+
           Figure 2.  Message flow for an abbreviated handshake
 
-   The contents and significance of each message will be presented in
-   detail in the following sections.
+   Содержание и значение каждого сообщения будут подробно представлены в следующих разделах.
 
 ## 7.4.  Handshake Protocol
 
-   The TLS Handshake Protocol is one of the defined higher-level clients
-   of the TLS Record Protocol.  This protocol is used to negotiate the
-   secure attributes of a session.  Handshake messages are supplied to
-   the TLS record layer, where they are encapsulated within one or more
-   TLSPlaintext structures, which are processed and transmitted as
-   specified by the current active session state.
+Протокол установления связи TLS является одним из определенных клиентов более высокого уровня протокола 
+записи TLS. Этот протокол используется для согласования атрибутов безопасности сеанса. Сообщения 
+подтверждения передаются на уровень записи TLS, где они инкапсулируются в одну или несколько структур 
+TLSPlaintext, которые обрабатываются и передаются в соответствии с текущим активным состоянием сеанса.
 
       enum {
           hello_request(0), client_hello(1), server_hello(2),
@@ -1773,7 +1504,7 @@ ClientHello.random и ServerHello.random.
           certificate_verify(15), client_key_exchange(16),
           finished(20), (255)
       } HandshakeType;
-    
+
       struct {
           HandshakeType msg_type;    /* handshake type */
           uint24 length;             /* bytes in message */
@@ -1792,134 +1523,107 @@ ClientHello.random и ServerHello.random.
       } Handshake;
 
 
+Сообщения протокола рукопожатия представлены ниже в том порядке, в котором они ДОЛЖНЫ быть 
+отправлены; отправка сообщений подтверждения в неожиданном порядке приводит к фатальной ошибке. 
+Однако ненужные сообщения подтверждения можно опустить. Обратите внимание на одно исключение из 
+порядка: сообщение сертификата используется дважды в рукопожатии (от сервера к клиенту, затем от 
+клиента к серверу), но описывается только в его первой позиции. Единственное сообщение, которое 
+не связано этими правилами упорядочивания, - это сообщение HelloRequest, которое может быть 
+отправлено в любое время, но которое ДОЛЖНО игнорироваться клиентом, если оно прибывает в 
+середине рукопожатия.
 
+Новые типы сообщений рукопожатия назначаются IANA, как описано в разделе 12.
 
-   The handshake protocol messages are presented below in the order they
-   MUST be sent; sending handshake messages in an unexpected order
-   results in a fatal error.  Unneeded handshake messages can be
-   omitted, however.  Note one exception to the ordering: the
-   Certificate message is used twice in the handshake (from server to
-   client, then from client to server), but described only in its first
-   position.  The one message that is not bound by these ordering rules
-   is the HelloRequest message, which can be sent at any time, but which
-   SHOULD be ignored by the client if it arrives in the middle of a
-   handshake.
+### 7.4.1.  Hello Messages
 
-   New handshake message types are assigned by IANA as described in
-   Section 12.
+   TСообщения фазы приветствия используются для обмена возможностями повышения безопасности между клиентом и сервером. Когда начинается новый сеанс, алгоритмы шифрования, хеширования и сжатия состояния соединения уровня записи инициализируются нулевым значением. Текущее состояние соединения используется для сообщений повторного согласования.
 
-7.4.1.  Hello Messages
+#### 7.4.1.1.  Hello Request
 
-   The hello phase messages are used to exchange security enhancement
-   capabilities between the client and server.  When a new session
-   begins, the record layer's connection state encryption, hash, and
-   compression algorithms are initialized to null.  The current
-   connection state is used for renegotiation messages.
+Когда будет отправлено это сообщение:
 
-7.4.1.1.  Hello Request
+  Сообщение HelloRequest МОЖЕТ быть отправлено сервером в любое время.
 
-   When this message will be sent:
+   Значение этого сообщения:
 
-  The HelloRequest message MAY be sent by the server at any time.
+  HelloRequest - это простое уведомление о том, что клиент должен заново начать процесс 
+  согласования. В ответ клиент должен отправить сообщение ClientHello, когда это удобно. 
+  Это сообщение не предназначено для установления того, какая сторона является клиентом 
+  или сервером, а просто для инициирования нового согласования. Серверам НЕ СЛЕДУЕТ 
+  отправлять HelloRequest сразу после первоначального подключения клиента. В этот момент 
+  клиент должен отправить сообщение ClientHello.
 
-   Meaning of this message:
+  Это сообщение будет проигнорировано клиентом, если клиент в настоящее время ведет 
+  переговоры о сеансе. Это сообщение МОЖЕТ быть проигнорировано клиентом, если он 
+  не желает повторно согласовывать сеанс, или клиент может, если он желает, ответить 
+  предупреждением no_renegotiation. Поскольку сообщения квитирования должны иметь приоритет 
+  передачи над данными приложения, ожидается, что согласование начнется до того, как от 
+  клиента будет получено не более нескольких записей. Если сервер отправляет HelloRequest, 
+  но не получает в ответ ClientHello, он может закрыть соединение с фатальным предупреждением.
 
-  HelloRequest is a simple notification that the client should begin
-  the negotiation process anew.  In response, the client should send
-  a ClientHello message when convenient.  This message is not
-  intended to establish which side is the client or server but
-  merely to initiate a new negotiation.  Servers SHOULD NOT send a
-  HelloRequest immediately upon the client's initial connection.  It
-  is the client's job to send a ClientHello at that time.
+  После отправки HelloRequest серверам НЕ СЛЕДУЕТ повторять запрос до тех пор, пока не будет 
+  завершено последующее согласование рукопожатия.
 
-  This message will be ignored by the client if the client is
-  currently negotiating a session.  This message MAY be ignored by
-  the client if it does not wish to renegotiate a session, or the
-  client may, if it wishes, respond with a no_renegotiation alert.
-  Since handshake messages are intended to have transmission
-  precedence over application data, it is expected that the
-  negotiation will begin before no more than a few records are
-  received from the client.  If the server sends a HelloRequest but
-  does not receive a ClientHello in response, it may close the
-  connection with a fatal alert.
-
-  After sending a HelloRequest, servers SHOULD NOT repeat the
-  request until the subsequent handshake negotiation is complete.
-
-   Structure of this message:
-
+   Структура сообщения:
+   
       struct { } HelloRequest;
 
-   This message MUST NOT be included in the message hashes that are
-   maintained throughout the handshake and used in the Finished messages
-   and the certificate verify message.
+Это сообщение НЕ ДОЛЖНО быть включено в хэши сообщений, которые поддерживаются на протяжении 
+всего рукопожатия и используются в сообщениях Finished и сообщении проверки сертификата.
 
-7.4.1.2.  Client Hello
+#### 7.4.1.2.  Client Hello
 
-   When this message will be sent:
+Когда будет отправлено это сообщение:
 
-  When a client first connects to a server, it is required to send
-  the ClientHello as its first message.  The client can also send a
-  ClientHello in response to a HelloRequest or on its own initiative
-  in order to renegotiate the security parameters in an existing
-  connection.
+   Когда клиент впервые подключается к серверу, он должен отправить ClientHello в качестве 
+   своего первого сообщения. Клиент также может отправить ClientHello в ответ на HelloRequest 
+   или по собственной инициативе, чтобы повторно согласовать параметры безопасности в 
+   существующем соединении.
 
-   Structure of this message:
+Структура сообщения:
 
-  The ClientHello message includes a random structure, which is used
-  later in the protocol.
+ Сообщение ClientHello включает случайную структуру, которая используется позже в протоколе.
 
          struct {
              uint32 gmt_unix_time;
              opaque random_bytes[28];
          } Random;
-    
-      gmt_unix_time
-         The current time and date in standard UNIX 32-bit format
-         (seconds since the midnight starting Jan 1, 1970, UTC, ignoring
-         leap seconds) according to the sender's internal clock.  Clocks
-         are not required to be set correctly by the basic TLS protocol;
-         higher-level or application protocols may define additional
-         requirements.  Note that, for historical reasons, the data
-         element is named using GMT, the predecessor of the current
-         worldwide time base, UTC.
-    
-      random_bytes
-         28 bytes generated by a secure random number generator.
 
-   The ClientHello message includes a variable-length session
-   identifier.  If not empty, the value identifies a session between the
-   same client and server whose security parameters the client wishes to
-   reuse.  The session identifier MAY be from an earlier connection,
+  gmt_unix_time
+     Текущее время и дата в стандартном 32-битном формате UNIX (секунды с полуночи, 
+     начинающейся 1 января 1970 г., всемирное координированное время, без учета 
+     дополнительных секунд) по внутренним часам отправителя. Базовый протокол TLS н
+     е требует правильной установки часов; протоколы более высокого уровня или прикладные
+     протоколы могут определять дополнительные требования. Обратите внимание, что по 
+     историческим причинам элемент данных назван с использованием GMT, предшественника 
+     текущей всемирной временной базы, UTC.
 
+  random_bytes
+     28 bytes generated by a secure random number generator.
 
-
-Dierks & Rescorla           Standards Track                    [Page 39]
-
-RFC 5246                          TLS                        August 2008
-
-
-   this connection, or from another currently active connection.  The
-   second option is useful if the client only wishes to update the
-   random structures and derived values of a connection, and the third
-   option makes it possible to establish several independent secure
-   connections without repeating the full handshake protocol.  These
-   independent connections may occur sequentially or simultaneously; a
-   SessionID becomes valid when the handshake negotiating it completes
-   with the exchange of Finished messages and persists until it is
-   removed due to aging or because a fatal error was encountered on a
-   connection associated with the session.  The actual contents of the
-   SessionID are defined by the server.
+   Сообщение ClientHello включает идентификатор сеанса переменной длины. 
+   Если не пусто, значение идентифицирует сеанс между тем же клиентом и 
+   сервером, параметры безопасности которого клиент желает повторно использовать. 
+   Идентификатор сеанса МОЖЕТ относиться к более раннему соединению, этому
+   соединению или другому активному в данный момент соединению. Второй вариант 
+   полезен, если клиент желает только обновить случайные структуры и производные 
+   значения соединения, а третий вариант позволяет установить несколько 
+   независимых безопасных соединений без повторения полного протокола установления 
+   связи. Эти независимые соединения могут происходить последовательно или 
+   одновременно; SessionID становится действительным, когда согласование 
+   рукопожатия завершается обменом сообщениями Finished, и сохраняется до 
+   тех пор, пока он не будет удален из-за устаревания или из-за фатальной ошибки 
+   в соединении, связанном с сеансом. Фактическое содержимое SessionID определяется 
+   сервером.
 
       opaque SessionID<0..32>;
 
-   Warning: Because the SessionID is transmitted without encryption or
-   immediate MAC protection, servers MUST NOT place confidential
-   information in session identifiers or let the contents of fake
-   session identifiers cause any breach of security.  (Note that the
-   content of the handshake as a whole, including the SessionID, is
-   protected by the Finished messages exchanged at the end of the
-   handshake.)
+   Предупреждение: поскольку SessionID передается без шифрования или немедленной 
+   защиты MAC, серверы НЕ ДОЛЖНЫ помещать конфиденциальную информацию в идентификаторы 
+   сеанса или позволять содержимому поддельных идентификаторов сеанса вызывать 
+   какое-либо нарушение безопасности. (Обратите внимание, что содержимое рукопожатия 
+   в целом, включая SessionID, защищено сообщениями Finished, которыми обмениваются 
+   в конце рукопожатия.)
 
    The cipher suite list, passed from the client to the server in the
    ClientHello message, contains the combinations of cryptographic
@@ -1939,7 +1643,7 @@ RFC 5246                          TLS                        August 2008
    by the client, ordered according to the client's preference.
 
       enum { null(0), (255) } CompressionMethod;
-    
+
       struct {
           ProtocolVersion client_version;
           Random random;
@@ -2014,8 +1718,11 @@ RFC 5246                          TLS                        August 2008
 
 Когда будет отправлено это сообщение:
 
-Сервер отправит это сообщение в ответ на сообщение ClientHello, когда ему удастся найти приемлемый набор алгоритмов. 
-Если он не может найти такое совпадение, он ответит предупреждением об отказе рукопожатия.
+Сервер отправит это сообщение в ответ на сообщение ClientHello, когда ему 
+удастся найти приемлемый набор алгоритмов.
+
+Если он не может найти такое совпадение, он ответит предупреждением об 
+отказе рукопожатия.
 
 Структура сообщения:
 
@@ -2033,41 +1740,39 @@ RFC 5246                          TLS                        August 2008
           };
       } ServerHello;
 
-  
-
 
 Присутствие расширений можно определить, определив, есть ли байты после поля Compression_method в конце ServerHello.
 
    server_version
-      Это поле будет содержать меньшее из значений, предложенных клиентом в приветствии клиента, и максимальное 
-      значение, поддерживаемое сервером. Для данной версии спецификации используется версия 3.3. (См. Приложение E для 
+      Это поле будет содержать меньшее из значений, предложенных клиентом в приветствии клиента, и максимальное
+      значение, поддерживаемое сервером. Для данной версии спецификации используется версия 3.3. (См. Приложение E для
       получения подробной информации об обратной совместимости.)
 
    random
       Эта структура создается сервером и ДОЛЖНА создаваться независимо от ClientHello.random.
 
    session_id
-      Это идентификатор сеанса, соответствующего данному соединению. Если ClientHello.session_id не был пустым, сервер 
-      будет искать совпадение в своем кэше сеанса. Если совпадение найдено и сервер желает установить новое соединение, 
-      используя указанное состояние сеанса, сервер ответит тем же значением, которое было предоставлено клиентом. Это 
-      указывает на возобновленный сеанс и указывает, что стороны должны перейти непосредственно к сообщениям Finished. 
-      В противном случае это поле будет содержать другое значение, идентифицирующее новый сеанс. Сервер может вернуть 
-      пустой session_id, чтобы указать, что сеанс не будет кэширован и, следовательно, не может быть возобновлен. 
-      Если сеанс возобновляется, он должен быть возобновлен с использованием того же набора шифров, с которым были 
-      первоначально согласованы. Обратите внимание, что не требуется, чтобы сервер возобновлял какой-либо сеанс, даже 
-      если он ранее предоставил session_id. Клиенты ДОЛЖНЫ быть готовы к полному согласованию - включая согласование 
+      Это идентификатор сеанса, соответствующего данному соединению. Если ClientHello.session_id не был пустым, сервер
+      будет искать совпадение в своем кэше сеанса. Если совпадение найдено и сервер желает установить новое соединение,
+      используя указанное состояние сеанса, сервер ответит тем же значением, которое было предоставлено клиентом. Это
+      указывает на возобновленный сеанс и указывает, что стороны должны перейти непосредственно к сообщениям Finished.
+      В противном случае это поле будет содержать другое значение, идентифицирующее новый сеанс. Сервер может вернуть
+      пустой session_id, чтобы указать, что сеанс не будет кэширован и, следовательно, не может быть возобновлен.
+      Если сеанс возобновляется, он должен быть возобновлен с использованием того же набора шифров, с которым были
+      первоначально согласованы. Обратите внимание, что не требуется, чтобы сервер возобновлял какой-либо сеанс, даже
+      если он ранее предоставил session_id. Клиенты ДОЛЖНЫ быть готовы к полному согласованию - включая согласование
       новых наборов шифров - во время любого рукопожатия.
 
    cipher_suite
-      Единый набор шифров, выбранный сервером из списка в ClientHello.cipher_suites. Для возобновленных сеансов это 
+      Единый набор шифров, выбранный сервером из списка в ClientHello.cipher_suites. Для возобновленных сеансов это
       поле представляет собой значение из состояния возобновляемого сеанса.
 
    compression_method
-      Единый алгоритм сжатия, выбранный сервером из списка в ClientHello.compression_methods. Для возобновленных 
+      Единый алгоритм сжатия, выбранный сервером из списка в ClientHello.compression_methods. Для возобновленных
       сеансов это поле представляет собой значение из состояния возобновленного сеанса.
 
    extensions
-      Список расширений. Обратите внимание, что в списке сервера могут отображаться только расширения, 
+      Список расширений. Обратите внимание, что в списке сервера могут отображаться только расширения,
       предлагаемые клиентом.
 
 
@@ -2079,7 +1784,7 @@ RFC 5246                          TLS                        August 2008
           ExtensionType extension_type;
           opaque extension_data<0..2^16-1>;
       } Extension;
-    
+
       enum {
           signature_algorithms(13), (65535)
       } ExtensionType;
@@ -2119,13 +1824,6 @@ RFC 5246                          TLS                        August 2008
    server will accept this request, and therefore it SHOULD send the
    same extensions as it would send if it were not attempting
    resumption.
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 44]
-
-RFC 5246                          TLS                        August 2008
-
 
    In general, the specification of each extension type needs to
    describe the effect of the extension both during full handshake and
@@ -2169,7 +1867,7 @@ RFC 5246                          TLS                        August 2008
       possibility of version rollback should be a significant
       consideration in any major design change.
 
-7.4.1.4.1.  Signature Algorithms
+##### 7.4.1.4.1.  Signature Algorithms
 
    The client uses the "signature_algorithms" extension to indicate to
    the server which signature/hash algorithm pairs may be used in
@@ -2177,25 +1875,19 @@ RFC 5246                          TLS                        August 2008
    contains a "supported_signature_algorithms" value.
 
 
-
-Dierks & Rescorla           Standards Track                    [Page 45]
-
-RFC 5246                          TLS                        August 2008
-
-
       enum {
           none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
           sha512(6), (255)
       } HashAlgorithm;
-    
+
       enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
         SignatureAlgorithm;
-    
+
       struct {
             HashAlgorithm hash;
             SignatureAlgorithm signature;
       } SignatureAndHashAlgorithm;
-    
+
       SignatureAndHashAlgorithm
         supported_signature_algorithms<2..2^16-2>;
 
@@ -2232,13 +1924,6 @@ RFC 5246                          TLS                        August 2008
    use them for verifying messages sent by the server, i.e., server
    certificates and server key exchange), it MUST send the
 
-
-
-Dierks & Rescorla           Standards Track                    [Page 46]
-
-RFC 5246                          TLS                        August 2008
-
-
    signature_algorithms extension, listing the algorithms it is willing
    to accept.
 
@@ -2271,7 +1956,7 @@ RFC 5246                          TLS                        August 2008
    Server Hello, and the server ignores the extension in Client Hello
    (if present).
 
-7.4.2.  Server Certificate
+### 7.4.2.  Server Certificate
 
    When this message will be sent:
 
@@ -2284,7 +1969,7 @@ RFC 5246                          TLS                        August 2008
    Meaning of this message:
 
       This message conveys the server's certificate chain to the client.
-    
+
       The certificate MUST be appropriate for the negotiated cipher
       suite's key exchange algorithm and any negotiated extensions.
 
@@ -2298,7 +1983,7 @@ RFC 5246                          TLS                        August 2008
    Structure of this message:
 
       opaque ASN.1Cert<1..2^24-1>;
-    
+
       struct {
           ASN.1Cert certificate_list<0..2^24-1>;
       } Certificate;
@@ -2340,17 +2025,6 @@ RFC 5246                          TLS                        August 2008
                          usage extension is present).
                          Note: RSA_PSK is defined in [TLSPSK].
 
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 48]
-
-RFC 5246                          TLS                        August 2008
-
-
       DHE_RSA            RSA public key; the certificate MUST allow the
       ECDHE_RSA          key to be used for signing (the
                          digitalSignature bit MUST be set if the key
@@ -2358,20 +2032,20 @@ RFC 5246                          TLS                        August 2008
                          scheme and hash algorithm that will be employed
                          in the server key exchange message.
                          Note: ECDHE_RSA is defined in [TLSECC].
-    
+
       DHE_DSS            DSA public key; the certificate MUST allow the
                          key to be used for signing with the hash
                          algorithm that will be employed in the server
                          key exchange message.
-    
+
       DH_DSS             Diffie-Hellman public key; the keyAgreement bit
       DH_RSA             MUST be set if the key usage extension is
                          present.
-    
+
       ECDH_ECDSA         ECDH-capable public key; the public key MUST
       ECDH_RSA           use a curve and point format supported by the
                          client, as described in [TLSECC].
-    
+
       ECDHE_ECDSA        ECDSA-capable public key; the certificate MUST
                          allow the key to be used for signing with the
                          hash algorithm that will be employed in the
@@ -2396,17 +2070,6 @@ RFC 5246                          TLS                        August 2008
    extension.  The names DH_DSS, DH_RSA, ECDH_ECDSA, and ECDH_RSA are
    historical.
 
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 49]
-
-RFC 5246                          TLS                        August 2008
-
-
    If the server has multiple certificates, it chooses one of them based
    on the above-mentioned criteria (in addition to other criteria, such
    as transport layer endpoint, local configuration and preferences,
@@ -2423,55 +2086,40 @@ RFC 5246                          TLS                        August 2008
    for the TLS protocol, they will imply the certificate format and the
    required encoded keying information.
 
-7.4.3.  Server Key Exchange Message
+### 7.4.3.  Server Key Exchange Message
 
-   When this message will be sent:
+Когда будет отправлено это сообщение:
 
-      This message will be sent immediately after the server Certificate
-      message (or the ServerHello message, if this is an anonymous
-      negotiation).
-    
-      The ServerKeyExchange message is sent by the server only when the
-      server Certificate message (if sent) does not contain enough data
-      to allow the client to exchange a premaster secret.  This is true
-      for the following key exchange methods:
-    
-         DHE_DSS
-         DHE_RSA
-         DH_anon
-    
-      It is not legal to send the ServerKeyExchange message for the
-      following key exchange methods:
-    
-         RSA
-         DH_DSS
-         DH_RSA
-    
-      Other key exchange algorithms, such as those defined in [TLSECC],
-      MUST specify whether the ServerKeyExchange message is sent or not;
-      and if the message is sent, its contents.
+Это сообщение будет отправлено сразу после сообщения сертификата сервера 
+(или сообщения ServerHello, если это анонимное согласование).
+
+Сообщение ServerKeyExchange отправляется сервером только в том случае, если 
+сообщение сертификата сервера (если оно отправлено) не содержит достаточно 
+данных, чтобы позволить клиенту обмениваться секретом предварительного мастера. 
+Это верно для следующих методов обмена ключами:
+
+ DHE_DSS
+ DHE_RSA
+ DH_anon
+
+ Отправка сообщения ServerKeyExchange для следующих методов обмена ключами является незаконной:
+
+ RSA
+ DH_DSS
+ DH_RSA
+
+Другие алгоритмы обмена ключами, например, определенные в [TLSECC], ДОЛЖНЫ указывать, 
+отправляется ли сообщение ServerKeyExchange или нет; и если сообщение отправлено, его содержимое.
 
 
+Значение этого сообщения:
 
+Это сообщение передает криптографическую информацию, позволяющую клиенту передать главный 
+секретный ключ: открытый ключ Диффи-Хеллмана, с помощью которого клиент может выполнить 
+обмен ключами (в результате чего будет главный секретный секрет), или открытый ключ для к
+акого-либо другого алгоритма.
 
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 50]
-
-RFC 5246                          TLS                        August 2008
-
-
-   Meaning of this message:
-
-      This message conveys cryptographic information to allow the client
-      to communicate the premaster secret: a Diffie-Hellman public key
-      with which the client can complete a key exchange (with the result
-      being the premaster secret) or a public key for some other
-      algorithm.
-
-   Structure of this message:
+Структура сообщения:
 
       enum { dhe_dss, dhe_rsa, dh_anon, rsa, dh_dss, dh_rsa
             /* may be extended, e.g., for ECDH -- see [TLSECC] */
@@ -2482,42 +2130,15 @@ RFC 5246                          TLS                        August 2008
           opaque dh_g<1..2^16-1>;
           opaque dh_Ys<1..2^16-1>;
       } ServerDHParams;     /* Ephemeral DH parameters */
-    
-      dh_p
-         The prime modulus used for the Diffie-Hellman operation.
-    
-      dh_g
-         The generator used for the Diffie-Hellman operation.
-    
-      dh_Ys
-         The server's Diffie-Hellman public value (g^X mod p).
 
+  dh_p
+     Простой модуль, используемый для операции Диффи-Хеллмана.
 
+  dh_g
+     Генератор, используемый для операции Диффи-Хеллмана.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 51]
-
-RFC 5246                          TLS                        August 2008
-
+  dh_Ys
+     Общедоступное значение сервера Диффи-Хеллмана (g ^ X mod p).
 
       struct {
           select (KeyExchangeAlgorithm) {
@@ -2535,57 +2156,45 @@ RFC 5246                          TLS                        August 2008
               case dh_dss:
               case dh_rsa:
                   struct {} ;
-                 /* message is omitted for rsa, dh_dss, and dh_rsa */
-              /* may be extended, e.g., for ECDH -- see [TLSECC] */
+                 /* сообщение опущено для rsa, dh_dss, and dh_rsa */
+              /* может быть расширен, например, на ECDH -- see [TLSECC] */
           };
       } ServerKeyExchange;
-    
-      params
-         The server's key exchange parameters.
-    
-      signed_params
-         For non-anonymous key exchanges, a signature over the server's
-         key exchange parameters.
 
-   If the client has offered the "signature_algorithms" extension, the
-   signature algorithm and hash algorithm MUST be a pair listed in that
-   extension.  Note that there is a possibility for inconsistencies
-   here.  For instance, the client might offer DHE_DSS key exchange but
-   omit any DSA pairs from its "signature_algorithms" extension.  In
-   order to negotiate correctly, the server MUST check any candidate
-   cipher suites against the "signature_algorithms" extension before
-   selecting them.  This is somewhat inelegant but is a compromise
-   designed to minimize changes to the original cipher suite design.
+  params
+     The server's key exchange parameters.
 
-   In addition, the hash and signature algorithms MUST be compatible
-   with the key in the server's end-entity certificate.  RSA keys MAY be
-   used with any permitted hash algorithm, subject to restrictions in
-   the certificate, if any.
+  signed_params
+     For non-anonymous key exchanges, a signature over the server's
+     key exchange parameters.
 
-   Because DSA signatures do not contain any secure indication of hash
-   algorithm, there is a risk of hash substitution if multiple hashes
-   may be used with any key.  Currently, DSA [DSS] may only be used with
-   SHA-1.  Future revisions of DSS [DSS-3] are expected to allow the use
-   of other digest algorithms with DSA, as well as guidance as to which
+Если клиент предложил расширение "signature_algorithms", алгоритм подписи и алгоритм 
+хеширования ДОЛЖНЫ быть парой, указанной в этом расширении. Обратите внимание, что 
+здесь возможны несоответствия. Например, клиент может предложить обмен ключами DHE_DSS, 
+но опустить любые пары DSA из своего расширения "signature_algorithms". Для правильного 
+согласования сервер ДОЛЖЕН проверять любые наборы шифров-кандидатов на соответствие 
+расширению "signature_algorithms" перед их выбором. Это несколько неэлегантно, но 
+представляет собой компромисс, призванный минимизировать изменения в исходном дизайне 
+набора шифров.
 
+Кроме того, алгоритмы хеширования и подписи ДОЛЖНЫ быть совместимы с ключом в сертификате 
+конечного объекта сервера. Ключи RSA МОГУТ использоваться с любым разрешенным алгоритмом 
+хеширования с учетом ограничений в сертификате, если таковые имеются.
 
+Поскольку подписи DSA не содержат никаких безопасных указаний на алгоритм хеширования, 
+существует риск подстановки хеша, если несколько хешей могут использоваться с любым ключом. 
+В настоящее время DSA [DSS] может использоваться только с SHA-1. Ожидается, что будущие
+ версии DSS [DSS-3] позволят использовать другие алгоритмы дайджеста с DSA, а также укажут, 
+ какие алгоритмы дайджеста следует использовать с каждым размером ключа. Кроме того, будущие 
+ версии [PKIX] могут определять механизмы для сертификатов, чтобы указать, какие алгоритмы 
+ дайджеста должны использоваться с DSA.
 
-Dierks & Rescorla           Standards Track                    [Page 52]
-
-RFC 5246                          TLS                        August 2008
+Поскольку для TLS определены дополнительные комплекты шифров, которые включают в себя новые 
+алгоритмы обмена ключами, сообщение об обмене ключами сервера будет отправлено тогда и только 
+тогда, когда тип сертификата, связанный с алгоритмом обмена ключами, не предоставит клиенту 
+достаточно информации для обмена главным секретом.
 
-
-   digest algorithms should be used with each key size.  In addition,
-   future revisions of [PKIX] may specify mechanisms for certificates to
-   indicate which digest algorithms are to be used with DSA.
-
-   As additional cipher suites are defined for TLS that include new key
-   exchange algorithms, the server key exchange message will be sent if
-   and only if the certificate type associated with the key exchange
-   algorithm does not provide enough information for the client to
-   exchange a premaster secret.
-
-7.4.4.  Certificate Request
+### 7.4.4.  Certificate Request
 
    When this message will be sent:
 
@@ -2602,9 +2211,9 @@ RFC 5246                          TLS                        August 2008
           rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
           fortezza_dms_RESERVED(20), (255)
       } ClientCertificateType;
-    
+
       opaque DistinguishedName<1..2^16-1>;
-    
+
       struct {
           ClientCertificateType certificate_types<1..2^8-1>;
           SignatureAndHashAlgorithm
@@ -2620,16 +2229,6 @@ RFC 5246                          TLS                        August 2008
          dss_sign        a certificate containing a DSA key
          rsa_fixed_dh    a certificate containing a static DH key.
          dss_fixed_dh    a certificate containing a static DH key
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 53]
-
-RFC 5246                          TLS                        August 2008
-
 
    supported_signature_algorithms
       A list of the hash/signature algorithm pairs that the server is
@@ -2679,18 +2278,10 @@ RFC 5246                          TLS                        August 2008
    SSLv3.
 
 
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 54]
-
-RFC 5246                          TLS                        August 2008
-
-
    Note: It is a fatal handshake_failure alert for an anonymous server
    to request client authentication.
 
-7.4.5.  Server Hello Done
+### 7.4.5.  Server Hello Done
 
    When this message will be sent:
 
@@ -2703,7 +2294,7 @@ RFC 5246                          TLS                        August 2008
       This message means that the server is done sending messages to
       support the key exchange, and the client can proceed with its
       phase of the key exchange.
-    
+
       Upon receipt of the ServerHelloDone message, the client SHOULD
       verify that the server provided a valid certificate, if required,
       and check that the server hello parameters are acceptable.
@@ -2712,7 +2303,7 @@ RFC 5246                          TLS                        August 2008
 
       struct { } ServerHelloDone;
 
-7.4.6.  Client Certificate
+### 7.4.6.  Client Certificate
 
    When this message will be sent:
 
@@ -2728,19 +2319,9 @@ RFC 5246                          TLS                        August 2008
       unacceptable (e.g., it was not signed by a known, trusted CA), the
       server MAY at its discretion either continue the handshake
       (considering the client unauthenticated) or send a fatal alert.
-    
+
       Client certificates are sent using the Certificate structure
       defined in Section 7.4.2.
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 55]
-
-RFC 5246                          TLS                        August 2008
 
 
    Meaning of this message:
@@ -2792,13 +2373,6 @@ RFC 5246                          TLS                        August 2008
       message was non-empty, one of the certificates in the certificate
       chain SHOULD be issued by one of the listed CAs.
 
-
-
-Dierks & Rescorla           Standards Track                    [Page 56]
-
-RFC 5246                          TLS                        August 2008
-
-
    -  The certificates MUST be signed using an acceptable hash/
       signature algorithm pair, as described in Section 7.4.4.  Note
       that this relaxes the constraints on certificate-signing
@@ -2808,52 +2382,29 @@ RFC 5246                          TLS                        August 2008
    that use algorithms/algorithm combinations that cannot be currently
    used with TLS.
 
-7.4.7.  Client Key Exchange Message
+### 7.4.7.  Client Key Exchange Message
 
-   When this message will be sent:
+ Когда будет отправлено это сообщение:
 
-      This message is always sent by the client.  It MUST immediately
-      follow the client certificate message, if it is sent.  Otherwise,
-      it MUST be the first message sent by the client after it receives
-      the ServerHelloDone message.
+ Это сообщение всегда отправляет клиент. Он ДОЛЖЕН немедленно следовать за сообщением 
+ о сертификате клиента, если оно отправлено. В противном случае это ДОЛЖНО быть первым 
+ сообщением, отправленным клиентом после получения сообщения ServerHelloDone.
 
-   Meaning of this message:
+ Значение этого сообщения:
 
-      With this message, the premaster secret is set, either by direct
-      transmission of the RSA-encrypted secret or by the transmission of
-      Diffie-Hellman parameters that will allow each side to agree upon
-      the same premaster secret.
-    
-      When the client is using an ephemeral Diffie-Hellman exponent,
-      then this message contains the client's Diffie-Hellman public
-      value.  If the client is sending a certificate containing a static
-      DH exponent (i.e., it is doing fixed_dh client authentication),
-      then this message MUST be sent but MUST be empty.
+ В этом сообщении устанавливается главный секретный ключ либо путем прямой передачи 
+ RSA-зашифрованного секрета, либо путем передачи параметров Диффи-Хеллмана, которые 
+ позволят каждой стороне согласовать один и тот же главный секретный ключ.
 
-   Structure of this message:
+ Когда клиент использует эфемерный показатель степени Диффи-Хеллмана, это сообщение содержит 
+ общедоступное значение Диффи-Хеллмана клиента. Если клиент отправляет сертификат, содержащий 
+ статическую экспоненту DH (т.е. он выполняет аутентификацию клиента fixed_dh), то это сообщение 
+ ДОЛЖНО быть отправлено, но ДОЛЖНО быть пустым.
 
-      The choice of messages depends on which key exchange method has
-      been selected.  See Section 7.4.3 for the KeyExchangeAlgorithm
-      definition.
+ Структура сообщения:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 57]
-
-RFC 5246                          TLS                        August 2008
-
+ Выбор сообщений зависит от того, какой метод обмена ключами был выбран. См. Определение KeyExchangeAlgorithm 
+ в Разделе 7.4.3.
 
       struct {
           select (KeyExchangeAlgorithm) {
@@ -2868,7 +2419,7 @@ RFC 5246                          TLS                        August 2008
           } exchange_keys;
       } ClientKeyExchange;
 
-7.4.7.1.  RSA-Encrypted Premaster Secret Message
+#### 7.4.7.1.  RSA-Encrypted Premaster Secret Message
 
    Meaning of this message:
 
@@ -2885,31 +2436,21 @@ RFC 5246                          TLS                        August 2008
           ProtocolVersion client_version;
           opaque random[46];
       } PreMasterSecret;
-    
+
       client_version
          The latest (newest) version supported by the client.  This is
          used to detect version rollback attacks.
-    
+
       random
          46 securely-generated random bytes.
-    
+
       struct {
           public-key-encrypted PreMasterSecret pre_master_secret;
       } EncryptedPreMasterSecret;
-    
+
       pre_master_secret
          This random value is generated by the client and is used to
          generate the master secret, as specified in Section 8.1.
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 58]
-
-RFC 5246                          TLS                        August 2008
-
 
    Note: The version number in the PreMasterSecret is the version
    offered by the client in the ClientHello.client_version, not the
@@ -2939,9 +2480,9 @@ RFC 5246                          TLS                        August 2008
    formatted RSA blocks.  In other words:
 
       1. Generate a string R of 46 random bytes
-    
+
       2. Decrypt the message to recover the plaintext M
-    
+
       3. If the PKCS#1 padding is not correct, or the length of message
          M is not exactly 48 bytes:
             pre_master_secret = ClientHello.client_version || R
@@ -2961,26 +2502,20 @@ RFC 5246                          TLS                        August 2008
 
 
 
+  1. Generate a string R of 48 random bytes
 
-Dierks & Rescorla           Standards Track                    [Page 59]
-
-RFC 5246                          TLS                        August 2008
+  2. Decrypt the message to recover the plaintext M
 
-
-      1. Generate a string R of 48 random bytes
-    
-      2. Decrypt the message to recover the plaintext M
-    
-      3. If the PKCS#1 padding is not correct, or the length of message
-         M is not exactly 48 bytes:
-            pre_master_secret = R
-         else If ClientHello.client_version <= TLS 1.0, and version
-         number check is explicitly disabled:
-            premaster secret = M
-         else If M[0..1] != ClientHello.client_version:
-            premaster secret = R
-         else:
-            premaster secret = M
+  3. If the PKCS#1 padding is not correct, or the length of message
+     M is not exactly 48 bytes:
+        pre_master_secret = R
+     else If ClientHello.client_version <= TLS 1.0, and version
+     number check is explicitly disabled:
+        premaster secret = M
+     else If M[0..1] != ClientHello.client_version:
+        premaster secret = R
+     else:
+        premaster secret = M
 
    Although no practical attacks against this construction are known,
    Klima et al. [KPR03] describe some theoretical attacks, and therefore
@@ -3018,10 +2553,6 @@ RFC 5246                          TLS                        August 2008
 
 
 
-Dierks & Rescorla           Standards Track                    [Page 60]
-
-RFC 5246                          TLS                        August 2008
-
 
    upgrading from SSLv3 MUST modify their implementations to generate
    and accept the correct encoding.  Implementors who wish to be
@@ -3034,7 +2565,7 @@ RFC 5246                          TLS                        August 2008
    use RSA blinding or some other anti-timing technique, as described in
    [TIMING].
 
-7.4.7.2.  Client Diffie-Hellman Public Value
+#### 7.4.7.2.  Client Diffie-Hellman Public Value
 
    Meaning of this message:
 
@@ -3047,47 +2578,37 @@ RFC 5246                          TLS                        August 2008
    Structure of this message:
 
       enum { implicit, explicit } PublicValueEncoding;
-    
+
       implicit
          If the client has sent a certificate which contains a suitable
          Diffie-Hellman key (for fixed_dh client authentication), then
          Yc is implicit and does not need to be sent again.  In this
          case, the client key exchange message will be sent, but it MUST
          be empty.
-    
+
       explicit
          Yc needs to be sent.
-    
+
       struct {
           select (PublicValueEncoding) {
               case implicit: struct { };
               case explicit: opaque dh_Yc<1..2^16-1>;
           } dh_public;
       } ClientDiffieHellmanPublic;
-    
+
       dh_Yc
          The client's Diffie-Hellman public value (Yc).
 
 
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 61]
-
-RFC 5246                          TLS                        August 2008
-
-
-7.4.8.  Certificate Verify
+### 7.4.8.  Certificate Verify
 
    When this message will be sent:
 
-      This message is used to provide explicit verification of a client
-      certificate.  This message is only sent following a client
-      certificate that has signing capability (i.e., all certificates
-      except those containing fixed Diffie-Hellman parameters).  When
-      sent, it MUST immediately follow the client key exchange message.
+  This message is used to provide explicit verification of a client
+  certificate.  This message is only sent following a client
+  certificate that has signing capability (i.e., all certificates
+  except those containing fixed Diffie-Hellman parameters).  When
+  sent, it MUST immediately follow the client key exchange message.
 
    Structure of this message:
 
@@ -3096,108 +2617,92 @@ RFC 5246                          TLS                        August 2008
                opaque handshake_messages[handshake_messages_length];
            }
       } CertificateVerify;
-    
-      Here handshake_messages refers to all handshake messages sent or
-      received, starting at client hello and up to, but not including,
-      this message, including the type and length fields of the
-      handshake messages.  This is the concatenation of all the
-      Handshake structures (as defined in Section 7.4) exchanged thus
-      far.  Note that this requires both sides to either buffer the
-      messages or compute running hashes for all potential hash
-      algorithms up to the time of the CertificateVerify computation.
-      Servers can minimize this computation cost by offering a
-      restricted set of digest algorithms in the CertificateRequest
-      message.
-    
-      The hash and signature algorithms used in the signature MUST be
-      one of those present in the supported_signature_algorithms field
-      of the CertificateRequest message.  In addition, the hash and
-      signature algorithms MUST be compatible with the key in the
-      client's end-entity certificate.  RSA keys MAY be used with any
-      permitted hash algorithm, subject to restrictions in the
-      certificate, if any.
-    
-      Because DSA signatures do not contain any secure indication of
-      hash algorithm, there is a risk of hash substitution if multiple
-      hashes may be used with any key.  Currently, DSA [DSS] may only be
-      used with SHA-1.  Future revisions of DSS [DSS-3] are expected to
-      allow the use of other digest algorithms with DSA, as well as
-      guidance as to which digest algorithms should be used with each
-      key size.  In addition, future revisions of [PKIX] may specify
-      mechanisms for certificates to indicate which digest algorithms
-      are to be used with DSA.
 
+  Here handshake_messages refers to all handshake messages sent or
+  received, starting at client hello and up to, but not including,
+  this message, including the type and length fields of the
+  handshake messages.  This is the concatenation of all the
+  Handshake structures (as defined in Section 7.4) exchanged thus
+  far.  Note that this requires both sides to either buffer the
+  messages or compute running hashes for all potential hash
+  algorithms up to the time of the CertificateVerify computation.
+  Servers can minimize this computation cost by offering a
+  restricted set of digest algorithms in the CertificateRequest
+  message.
 
+  The hash and signature algorithms used in the signature MUST be
+  one of those present in the supported_signature_algorithms field
+  of the CertificateRequest message.  In addition, the hash and
+  signature algorithms MUST be compatible with the key in the
+  client's end-entity certificate.  RSA keys MAY be used with any
+  permitted hash algorithm, subject to restrictions in the
+  certificate, if any.
 
+  Because DSA signatures do not contain any secure indication of
+  hash algorithm, there is a risk of hash substitution if multiple
+  hashes may be used with any key.  Currently, DSA [DSS] may only be
+  used with SHA-1.  Future revisions of DSS [DSS-3] are expected to
+  allow the use of other digest algorithms with DSA, as well as
+  guidance as to which digest algorithms should be used with each
+  key size.  In addition, future revisions of [PKIX] may specify
+  mechanisms for certificates to indicate which digest algorithms
+  are to be used with DSA.
 
-Dierks & Rescorla           Standards Track                    [Page 62]
-
-RFC 5246                          TLS                        August 2008
-
-
-7.4.9.  Finished
+### 7.4.9.  Finished
 
    When this message will be sent:
 
-      A Finished message is always sent immediately after a change
-      cipher spec message to verify that the key exchange and
-      authentication processes were successful.  It is essential that a
-      change cipher spec message be received between the other handshake
-      messages and the Finished message.
+  A Finished message is always sent immediately after a change
+  cipher spec message to verify that the key exchange and
+  authentication processes were successful.  It is essential that a
+  change cipher spec message be received between the other handshake
+  messages and the Finished message.
 
-   Meaning of this message:
+Meaning of this message:
 
-      The Finished message is the first one protected with the just
-      negotiated algorithms, keys, and secrets.  Recipients of Finished
-      messages MUST verify that the contents are correct.  Once a side
-      has sent its Finished message and received and validated the
-      Finished message from its peer, it may begin to send and receive
-      application data over the connection.
+  The Finished message is the first one protected with the just
+  negotiated algorithms, keys, and secrets.  Recipients of Finished
+  messages MUST verify that the contents are correct.  Once a side
+  has sent its Finished message and received and validated the
+  Finished message from its peer, it may begin to send and receive
+  application data over the connection.
 
    Structure of this message:
 
       struct {
           opaque verify_data[verify_data_length];
       } Finished;
-    
-      verify_data
-         PRF(master_secret, finished_label, Hash(handshake_messages))
-            [0..verify_data_length-1];
-    
-      finished_label
-         For Finished messages sent by the client, the string
-         "client finished".  For Finished messages sent by the server,
-         the string "server finished".
-    
-      Hash denotes a Hash of the handshake messages.  For the PRF
-      defined in Section 5, the Hash MUST be the Hash used as the basis
-      for the PRF.  Any cipher suite which defines a different PRF MUST
-      also define the Hash to use in the Finished computation.
-    
-      In previous versions of TLS, the verify_data was always 12 octets
-      long.  In the current version of TLS, it depends on the cipher
-      suite.  Any cipher suite which does not explicitly specify
-      verify_data_length has a verify_data_length equal to 12.  This
-      includes all existing cipher suites.  Note that this
-      representation has the same encoding as with previous versions.
-      Future cipher suites MAY specify other lengths but such length
-      MUST be at least 12 bytes.
 
+  verify_data
+     PRF(master_secret, finished_label, Hash(handshake_messages))
+        [0..verify_data_length-1];
 
+  finished_label
+     For Finished messages sent by the client, the string
+     "client finished".  For Finished messages sent by the server,
+     the string "server finished".
 
+  Hash denotes a Hash of the handshake messages.  For the PRF
+  defined in Section 5, the Hash MUST be the Hash used as the basis
+  for the PRF.  Any cipher suite which defines a different PRF MUST
+  also define the Hash to use in the Finished computation.
 
-Dierks & Rescorla           Standards Track                    [Page 63]
-
-RFC 5246                          TLS                        August 2008
+  In previous versions of TLS, the verify_data was always 12 octets
+  long.  In the current version of TLS, it depends on the cipher
+  suite.  Any cipher suite which does not explicitly specify
+  verify_data_length has a verify_data_length equal to 12.  This
+  includes all existing cipher suites.  Note that this
+  representation has the same encoding as with previous versions.
+  Future cipher suites MAY specify other lengths but such length
+  MUST be at least 12 bytes.
 
-
-      handshake_messages
-         All of the data from all messages in this handshake (not
-         including any HelloRequest messages) up to, but not including,
-         this message.  This is only data visible at the handshake layer
-         and does not include record layer headers.  This is the
-         concatenation of all the Handshake structures as defined in
-         Section 7.4, exchanged thus far.
+  handshake_messages
+     All of the data from all messages in this handshake (not
+     including any HelloRequest messages) up to, but not including,
+     this message.  This is only data visible at the handshake layer
+     and does not include record layer headers.  This is the
+     concatenation of all the Handshake structures as defined in
+     Section 7.4, exchanged thus far.
 
    It is a fatal error if a Finished message is not preceded by a
    ChangeCipherSpec message at the appropriate point in the handshake.
@@ -3215,59 +2720,49 @@ RFC 5246                          TLS                        August 2008
    computations.  Also, HelloRequest messages are omitted from handshake
    hashes.
 
-#8.  Cryptographic Computations
+#8. Криптографические вычисления
 
-   In order to begin connection protection, the TLS Record Protocol
-   requires specification of a suite of algorithms, a master secret, and
-   the client and server random values.  The authentication, encryption,
-   and MAC algorithms are determined by the cipher_suite selected by the
-   server and revealed in the ServerHello message.  The compression
-   algorithm is negotiated in the hello messages, and the random values
-   are exchanged in the hello messages.  All that remains is to
-   calculate the master secret.
+Чтобы начать защиту соединения, протокол записи TLS требует указания набора алгоритмов, 
+главного секрета и случайных значений клиента и сервера. Алгоритмы аутентификации, 
+шифрования и MAC определяются cipher_suite, выбранным сервером и раскрытым в сообщении 
+ServerHello. Алгоритм сжатия согласовывается в приветственных сообщениях, а случайные 
+значения обмениваются в приветственных сообщениях. Остается только вычислить главный секрет.
 
-## 8.1.  Computing the Master Secret
+## 8.1. Computing the Master Secret
 
-   For all key exchange methods, the same algorithm is used to convert
-   the pre_master_secret into the master_secret.  The pre_master_secret
-   should be deleted from memory once the master_secret has been
-   computed.
+Для всех методов обмена ключами используется один и тот же алгоритм для преобразования 
+pre_master_secret в master_secret. Pre_master_secret должен быть удален из памяти после 
+вычисления master_secret.
 
       master_secret = PRF(pre_master_secret, "master secret",
                           ClientHello.random + ServerHello.random)
                           [0..47];
 
-   The master secret is always exactly 48 bytes in length.  The length
-   of the premaster secret will vary depending on key exchange method.
-
+Главный секрет всегда имеет длину ровно 48 байтов. Длина главного секрета будет варьироваться 
+в зависимости от метода обмена ключами.
 
 
 ### 8.1.1.  RSA
 
-   When RSA is used for server authentication and key exchange, a 48-
-   byte pre_master_secret is generated by the client, encrypted under
-   the server's public key, and sent to the server.  The server uses its
-   private key to decrypt the pre_master_secret.  Both parties then
-   convert the pre_master_secret into the master_secret, as specified
-   above.
+Когда RSA используется для аутентификации сервера и обмена ключами, 48-байтовый pre_master_secret 
+генерируется клиентом, шифруется открытым ключом сервера и отправляется на сервер. Сервер использует 
+свой закрытый ключ для расшифровки pre_master_secret. Обе стороны затем конвертируют 
+pre_master_secret в master_secret, как указано выше.
 
 ### 8.1.2.  Diffie-Hellman
 
-   A conventional Diffie-Hellman computation is performed.  The
-   negotiated key (Z) is used as the pre_master_secret, and is converted
-   into the master_secret, as specified above.  Leading bytes of Z that
-   contain all zero bits are stripped before it is used as the
-   pre_master_secret.
+Выполняется обычное вычисление Диффи-Хеллмана. Согласованный ключ (Z) используется как 
+pre_master_secret и преобразуется в master_secret, как указано выше. Начальные байты Z, 
+содержащие все нулевые биты, удаляются перед использованием в качестве pre_master_secret.
 
-   Note: Diffie-Hellman parameters are specified by the server and may
-   be either ephemeral or contained within the server's certificate.
+Примечание. Параметры Диффи-Хеллмана задаются сервером и могут быть временными или содержаться 
+в сертификате сервера.
 
-#9.  Mandatory Cipher Suites
+#9.  Обязательные наборы шифров
 
-   In the absence of an application profile standard specifying
-   otherwise, a TLS-compliant application MUST implement the cipher
-   suite TLS_RSA_WITH_AES_128_CBC_SHA (see Appendix A.5 for the
-   definition).
+   В отсутствие стандарта профиля приложения, указывающего иное, TLS-совместимое 
+   приложение ДОЛЖНО реализовать набор шифров TLS_RSA_WITH_AES_128_CBC_SHA 
+   (определение см. В Приложении A.5).
 
 #10.  Application Data Protocol
 
@@ -3287,16 +2782,6 @@ RFC 5246                          TLS                        August 2008
    [TLS1.1].  IANA has updated these to reference this document.  The
    registries and their allocation policies (unchanged from [TLS1.1])
    are listed below.
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 65]
-
-RFC 5246                          TLS                        August 2008
-
 
    -  TLS ClientCertificateType Identifiers Registry: Future values in
       the range 0-63 (decimal) inclusive are assigned via Standards
@@ -3566,14 +3051,6 @@ RFC 5246                          TLS                        August 2008
        opaque extension_data<0..2^16-1>;
    } Extension;
 
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 71]
-
-RFC 5246                          TLS                        August 2008
-
-
    enum {
        signature_algorithms(13), (65535)
    } ExtensionType;
@@ -3612,24 +3089,6 @@ RFC 5246                          TLS                        August 2008
        opaque dh_Ys<1..2^16-1>;
    } ServerDHParams;     /* Ephemeral DH parameters */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 72]
-
-RFC 5246                          TLS                        August 2008
-
-
    struct {
        select (KeyExchangeAlgorithm) {
            case dh_anon:
@@ -3666,24 +3125,6 @@ RFC 5246                          TLS                        August 2008
 
    struct { } ServerHelloDone;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 73]
-
-RFC 5246                          TLS                        August 2008
 
 ### A.4.3.  Client Authentication and Key Exchange Messages
 
@@ -3731,34 +3172,21 @@ RFC 5246                          TLS                        August 2008
    } Finished;
 
 
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 74]
-
-RFC 5246                          TLS                        August 2008
-
 ## A.5.  The Cipher Suite
 
-   The following values define the cipher suite codes used in the
-   ClientHello and ServerHello messages.
+Следующие значения определяют коды набора шифров, используемые в сообщениях ClientHello и ServerHello.
 
-   A cipher suite defines a cipher specification supported in TLS
-   Version 1.2.
+Набор шифров определяет спецификацию шифров, поддерживаемую в TLS версии 1.2.
 
-   TLS_NULL_WITH_NULL_NULL is specified and is the initial state of a
-   TLS connection during the first handshake on that channel, but MUST
-   NOT be negotiated, as it provides no more protection than an
-   unsecured connection.
+TLS_NULL_WITH_NULL_NULL указан и является начальным состоянием TLS-соединения во время первого 
+рукопожатия на этом канале, но НЕ ДОЛЖЕН согласовываться, поскольку он обеспечивает не больше защиты, 
+чем незащищенное соединение.
 
       CipherSuite TLS_NULL_WITH_NULL_NULL               = { 0x00,0x00 };
 
-   The following CipherSuite definitions require that the server provide
-   an RSA certificate that can be used for key exchange.  The server may
-   request any signature-capable certificate in the certificate request
-   message.
+Следующие определения CipherSuite требуют, чтобы сервер предоставил сертификат RSA, 
+который можно использовать для обмена ключами. Сервер может запросить любой сертификат 
+с возможностью подписи в сообщении запроса сертификата.
 
       CipherSuite TLS_RSA_WITH_NULL_MD5                 = { 0x00,0x01 };
       CipherSuite TLS_RSA_WITH_NULL_SHA                 = { 0x00,0x02 };
@@ -3771,29 +3199,15 @@ RFC 5246                          TLS                        August 2008
       CipherSuite TLS_RSA_WITH_AES_128_CBC_SHA256       = { 0x00,0x3C };
       CipherSuite TLS_RSA_WITH_AES_256_CBC_SHA256       = { 0x00,0x3D };
 
-   The following cipher suite definitions are used for server-
-   authenticated (and optionally client-authenticated) Diffie-Hellman.
-   DH denotes cipher suites in which the server's certificate contains
-   the Diffie-Hellman parameters signed by the certificate authority
-   (CA).  DHE denotes ephemeral Diffie-Hellman, where the Diffie-Hellman
-   parameters are signed by a signature-capable certificate, which has
-   been signed by the CA.  The signing algorithm used by the server is
-   specified after the DHE component of the CipherSuite name.  The
-   server can request any signature-capable certificate from the client
-   for client authentication, or it may request a Diffie-Hellman
-   certificate.  Any Diffie-Hellman certificate provided by the client
-   must use the parameters (group and generator) described by the
-   server.
-
-
-
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 75]
-
-RFC 5246                          TLS                        August 2008
+Следующие определения набора шифров используются для аутентифицированного сервером 
+(и, возможно, аутентифицированного клиентом) Diffie-Hellman. DH обозначает наборы 
+шифров, в которых сертификат сервера содержит параметры Диффи-Хеллмана, 
+подписанные центром сертификации (CA). DHE обозначает эфемерный Diffie-Hellman, 
+где параметры Diffie-Hellman подписаны сертификатом с возможностью подписи, 
+который был подписан CA. Алгоритм подписи, используемый сервером, указывается 
+после компонента DHE в имени CipherSuite. Сервер может запросить у клиента любой 
+сертификат с возможностью подписи для аутентификации клиента или может запросить 
+сертификат Диффи-Хеллмана. Любой сертификат Диффи-Хеллмана, предоставляемый клиентом, должен использовать параметры (группа и генератор), описанные сервером.
 
 
       CipherSuite TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA      = { 0x00,0x0D };
@@ -3817,17 +3231,13 @@ RFC 5246                          TLS                        August 2008
       CipherSuite TLS_DHE_DSS_WITH_AES_256_CBC_SHA256   = { 0x00,0x6A };
       CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA256   = { 0x00,0x6B };
 
-   The following cipher suites are used for completely anonymous
-   Diffie-Hellman communications in which neither party is
-   authenticated.  Note that this mode is vulnerable to man-in-the-
-   middle attacks.  Using this mode therefore is of limited use: These
-   cipher suites MUST NOT be used by TLS 1.2 implementations unless the
-   application layer has specifically requested to allow anonymous key
-   exchange.  (Anonymous key exchange may sometimes be acceptable, for
-   example, to support opportunistic encryption when no set-up for
-   authentication is in place, or when TLS is used as part of more
-   complex security protocols that have other means to ensure
-   authentication.)
+ Следующие ниже комплекты шифров используются для полностью анонимной связи Диффи-Хеллмана, в которой ни одна 
+ из сторон не аутентифицируется. Обратите внимание, что этот режим уязвим для атак «злоумышленник посередине». 
+ Следовательно, использование этого режима имеет ограниченное применение: эти комплекты шифров НЕ ДОЛЖНЫ использоваться 
+ реализациями TLS 1.2, если уровень приложения специально не запросил разрешить анонимный обмен ключами. (Анонимный 
+ обмен ключами иногда может быть приемлемым, например, для поддержки гибкого шифрования, когда нет настройки 
+ для аутентификации или когда TLS используется как часть более сложных протоколов безопасности, которые имеют 
+ другие средства для обеспечения аутентификации.)
 
       CipherSuite TLS_DH_anon_WITH_RC4_128_MD5          = { 0x00,0x18 };
       CipherSuite TLS_DH_anon_WITH_3DES_EDE_CBC_SHA     = { 0x00,0x1B };
@@ -3836,28 +3246,16 @@ RFC 5246                          TLS                        August 2008
       CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA256   = { 0x00,0x6C };
       CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA256   = { 0x00,0x6D };
 
-   Note that using non-anonymous key exchange without actually verifying
-   the key exchange is essentially equivalent to anonymous key exchange,
-   and the same precautions apply.  While non-anonymous key exchange
-   will generally involve a higher computational and communicational
-   cost than anonymous key exchange, it may be in the interest of
-   interoperability not to disable non-anonymous key exchange when the
-   application layer is allowing anonymous key exchange.
+Обратите внимание, что использование неанонимного обмена ключами без фактической проверки обмена ключами по сути 
+эквивалентно анонимному обмену ключами, и применяются те же меры предосторожности. Хотя неанонимный обмен ключами
+ обычно требует более высоких вычислительных и коммуникационных затрат, чем анонимный обмен ключами, может 
+ быть в интересах взаимодействия не отключать неанонимный обмен ключами, когда уровень приложения разрешает 
+ анонимный обмен ключами.
 
+Новые значения набора шифров были назначены IANA, как описано в разделе 12.
 
-
-
-Dierks & Rescorla           Standards Track                    [Page 76]
-
-RFC 5246                          TLS                        August 2008
-
-
-   New cipher suite values have been assigned by IANA as described in
-   Section 12.
-
-   Note: The cipher suite values { 0x00, 0x1C } and { 0x00, 0x1D } are
-   reserved to avoid collision with Fortezza-based cipher suites in
-   SSL 3.
+Примечание. Значения набора шифров {0x00, 0x1C} и {0x00, 0x1D} зарезервированы, чтобы избежать конфликтов с 
+наборами шифров на основе Fortezza в SSL 3.
 
 ## A.6.  The Security Parameters
 
@@ -4680,15 +4078,6 @@ RFC 5246                          TLS                        August 2008
    Completely anonymous sessions can be established using Diffie-Hellman
    for key exchange.  The server's public parameters are contained in
    the server key exchange message, and the client's are sent in the
-
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 91]
-
-RFC 5246                          TLS                        August 2008
-
-
    client key exchange message.  Eavesdroppers who do not know the
    private values should not be able to find the Diffie-Hellman result
    (i.e., the pre_master_secret).
@@ -4737,14 +4126,6 @@ RFC 5246                          TLS                        August 2008
    parameters, its certificate contains the information required to
    complete the key exchange.  Note that in this case the client and
    server will generate the same Diffie-Hellman result (i.e.,
-
-
-
-Dierks & Rescorla           Standards Track                    [Page 92]
-
-RFC 5246                          TLS                        August 2008
-
-
    pre_master_secret) every time they communicate.  To prevent the
    pre_master_secret from staying in memory any longer than necessary,
    it should be converted into the master_secret as soon as possible.
